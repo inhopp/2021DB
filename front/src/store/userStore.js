@@ -3,25 +3,42 @@ export default {
   state: {
     id: '',
     name: '',
+    active: '',
     current_status: '',
-    location: '',
     role: '',
+    building: '',
+    floor: '',
+    ssid: '',
+    longitude: '',
+    latitude: '',
+    ip: '',
     friends: []
   },
   mutations: {
     //sign_in
-    updateUser(state, { id, name, current_status, location, role }) {
+    updateUser(state, { id, name, active, current_status, role, building, floor, ssid, longitude, latitude, ip}) {
       state.id = id;
       state.name = name;
+      state.active = active;
       state.current_status = current_status;
-      state.location = location;
       state.role = role;
+      state.building = building;
+      state.floor = floor;
+      state.ssid = ssid;
+      state.longitude = longitude;
+      state.latitude = latitude;
+      state.ip = ip;
     },
 
     //edit_info
-    updateUser1(state, { current_status, location }) {
+    updateUserEditInfo(state, { current_status, building, floor, ssid, longitude, latitude, ip }) {
       state.current_status = current_status;
-      state.location = location;
+      state.building = building;
+      state.floor = floor;
+      state.ssid = ssid;
+      state.longitude = longitude;
+      state.latitude = latitude;
+      state.ip = ip;
     },
     
     updateFriends(state, { friends }) {

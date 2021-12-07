@@ -6,7 +6,7 @@ const { sign, verifyMiddleWare } = require('../modules/jwt');
 router.post('/signIn', async (req, res, next) => {
   const { id, password } = req.body;
 
-  const queryResult = await query(`SELECT * from users where id = '${id}' and password = '${password}';`);
+  const queryResult = await query(`SELECT * FROM users u, LOCATION L WHERE id = '${id}' and password = '${password}' and L.location_id = u.location_id;`);
 
   if (queryResult.length > 0) {
     const jwt = sign({
@@ -20,8 +20,13 @@ router.post('/signIn', async (req, res, next) => {
       success: true,
       id,
       name: queryResult[0].name,
+      active: queryResult[0].active,
       current_status: queryResult[0].current_status,
-      location: queryResult[0].location,
+      building: queryResult[0].building,
+      floor: queryResult[0].floor,
+      ssid: queryResult[0].ssid,
+      longitude: queryResult[0].longitude,
+      latitude: queryResult[0].latitude,
       role: queryResult[0].role
     });
   } else {
@@ -53,7 +58,7 @@ router.get('/friends', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
 
   if (id) {
-    const friends = (await query(`SELECT id, name FROM users where user_id in (SELECT to_id FROM friends WHERE from_id in (SELECT user_id FROM users WHERE id = '${id}')) ORDER BY name ASC;`));
+    const friends = (await query(`SELECT id, name FROM users where id in (SELECT to_id FROM friends WHERE from_id in (SELECT id FROM users WHERE id = '${id}')) ORDER BY name ASC;`));
 
     res.json({
       success: true,
@@ -74,7 +79,7 @@ router.post('/addFriends', verifyMiddleWare, async (req, res, next) => {
   if (id) {
     if (friend_id) {
       const friends_array = await query(`SELECT * FROM friends WHERE (from_id, 
-        to_id) in (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+        to_id) in (SELECT u1.id, u2.id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
 
       if (friends_array.length > 0) {
         res.json({
@@ -82,7 +87,7 @@ router.post('/addFriends', verifyMiddleWare, async (req, res, next) => {
           errorMessage: 'already exists!'
         });
       } else {
-        await query(`INSERT INTO friends(from_id, to_id) (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+        await query(`INSERT INTO friends(from_id, to_id) (SELECT u1.id, u2.id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
 
         res.json({
           success: true,
@@ -109,7 +114,7 @@ router.post('/removeFriends', verifyMiddleWare, async (req, res, next) => {
   if (id) {
     if (friend_id) {
       const friends_array = await query(`SELECT * FROM friends WHERE (from_id, 
-        to_id) in (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+        to_id) in (SELECT u1.id, u2.id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
 
       if (friends_array.length === 0) {
         res.json({
@@ -117,7 +122,7 @@ router.post('/removeFriends', verifyMiddleWare, async (req, res, next) => {
           errorMessage: 'Not exists id!'
         });
       } else {
-        await query(`DELETE FROM friends where (from_id, to_id) in (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+        await query(`DELETE FROM friends where (from_id, to_id) in (SELECT u1.id, u2.id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
 
         res.json({
           success: true,
