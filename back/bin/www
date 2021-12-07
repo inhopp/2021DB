@@ -9,17 +9,12 @@ const app_socket = require('../socket');
 const debug = require('debug')('myapp:server');
 const http = require('http');
 const socketRouter = require('../routes/socket.js');
-/**
- * Get port from environment and store in Express.
- */
-
-const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
+const { corsOrigin, apiPort, socketPort } = require('../package.json');
 const server = http.createServer(app);
 const socket = http.createServer(app_socket);
 
@@ -27,16 +22,16 @@ const socket = http.createServer(app_socket);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(apiPort);
 server.on('error', onError);
 server.on('listening', () => onListening(server));
-socket.listen(4000);
+socket.listen(socketPort);
 socket.on('error', onError);
 socket.on('listening', () => onListening(socket));
 
 socketRouter(require("socket.io")(socket, {
 	cors: {
-		origin: "http://localhost:8080",
+		origin: corsOrigin,
 		methods: ["GET", "POST"],
 		transports: ['websocket', 'polling'],
 		credentials: true
