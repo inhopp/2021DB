@@ -184,4 +184,31 @@ router.post('/signUp', async (req, res, next) => {
   }
 });
 
+// 내 정보 편집 관련 api - 김동우
+router.post('/users/statemessage', verifyMiddleWare, (req, res, next) => {
+  const { id, current_status } = req.body;
+
+  const queryResult = await query(`SELECT * from users where id = '${id}';`);
+
+  if (queryResult.length > 0) {
+    const jwt = sign({
+      id,
+      name: queryResult[0].name
+    });
+    res.cookie('token', jwt, {
+      httpOnly: true,
+      expires: new Date( Date.now() + 60 * 60 * 1000 * 24 * 7) // 7일 후 만료
+    }).json({
+      success: true,
+      id,
+      name: queryResult[0].name
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Incorrect id or password'
+    });
+  }
+});
+
 module.exports = router;
