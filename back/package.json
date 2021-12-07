@@ -6,7 +6,6 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -17,11 +16,5 @@
     "mysql": "^2.18.1",
     "pug": "2.0.0-beta11",
     "socket.io": "^4.3.2"
-  },
-  "corsOrigin": [
-    "http://dbproject.duckdns.org:8400",
-    "http://165.132.105.26:8400"
-  ],
-  "apiPort": 8400,
-  "socketPort": 8401
+  }
 }

@@ -6,7 +6,7 @@ const axiosConfig = {
     'Cache-Control': 'no-cache',
   },
   withCredentials: true,
-  baseURL: `${window.location.protocol}//${window.location.hostname}:${config.apiPort}/api`
+  baseURL: config.apiUrl
 };
 
 const instance = axios.create(axiosConfig);
