@@ -188,17 +188,17 @@ router.post('/signUp', async (req, res, next) => {
 // 내 정보 편집 관련 api 시작 - 김동우
 
 //상태메시지 변경 api
-//req.body에 current_status 필요: 새 상태메시지 내용
+//req.body에 new_status 필요: 새 상태메시지 내용
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
-router.post('/stateMessage', verifyMiddleWare, (req, res, next) => {
+router.post('/statusMessage', verifyMiddleWare, (req, res, next) => {
   const { id } = req.decoded;
-  const { current_status } = req.body;
+  const { new_status } = req.body;
 
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
 
   if (queryResult.length > 0) {
-    await query(`UPDATE users SET current_status = '${current_status}' WHERE id = '${id}';`);
+    await query(`UPDATE users SET current_status = '${new_status}' WHERE id = '${id}';`);
 
       res.json({
         success: true
