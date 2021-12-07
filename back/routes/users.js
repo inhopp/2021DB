@@ -220,7 +220,7 @@ router.get('/statusMessage', verifyMiddleWare, async (req, res, next) => {
 router.get('/idOrName', verifyMiddleWare, async (req, res, next) => {
   const { idOrName } = req.body;
 
-  const queryResult = await query(`SELECT name, current_status from users where id = '${id}' or name = '${id}';`);
+  const queryResult = await query(`SELECT name, current_status from users where id = '${idOrName}' or name = '${idOrName}';`);
 
   if (queryResult.length > 0) {
     res.json({
