@@ -17,6 +17,16 @@
             <el-form-item label="NAME" prop="name">
               <el-input v-model="ruleForm.name"></el-input>
             </el-form-item>
+
+            <el-form-item label="ROLE" prop="role">
+              <el-select v-model="ruleForm.role" placeholder="Select your position">
+                <el-option label="일반" value="일반"></el-option>
+                <el-option label="학생" value="학생"></el-option>
+                <el-option label="강사" value="강사"></el-option>
+                <el-option label="기업" value="기업"></el-option>
+              </el-select>
+            </el-form-item>
+
             <el-row>
               <el-col :span="16"> </el-col>
               <el-col :span="8">
@@ -71,16 +81,26 @@ export default {
       }
     };
 
+    const roleValidator = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("role을 선택해주세요"));
+      } else {
+        callback();
+      }
+    };
+
     return {
       ruleForm: {
         id: "",
         password: "",
         name: "",
+        role: "",
       },
       rules: {
         id: [{ validator: idValidator, trigger: "blur" }],
         password: [{ validator: passwordValidator, trigger: "blur" }],
         name: [{ validator: nameValidator, trigger: "blur" }],
+        role: [{ validator: roleValidator, trigger: "change" }],
       },
     };
   },
@@ -118,6 +138,10 @@ export default {
 </script>
 
 <style scoped>
+.text {
+  text-align: center;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
