@@ -191,7 +191,7 @@ router.post('/signUp', async (req, res, next) => {
 //req.body에 id 필요: 알고자 하는 상태메시지를 가진 유저의 id
 //성공시, success: true, current_status
 //살패시, success: false, errorMessage
-router.get('/statusMessage', verifyMiddleWare, (req, res, next) => {
+router.get('/statusMessage', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.body;
 
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
@@ -217,7 +217,7 @@ router.get('/statusMessage', verifyMiddleWare, (req, res, next) => {
 //req.body에 idOrName 필요: 검색하고자 하는 id 혹은 이름
 //성공시, success: true, queryResult
 //실패시, success: false, errorMessage
-router.get('/idOrName', verifyMiddleWare, (req, res, next) => {
+router.get('/idOrName', verifyMiddleWare, async (req, res, next) => {
   const { idOrName } = req.body;
 
   const queryResult = await query(`SELECT name, current_status from users where id = '${id}' or name = '${id}';`);
@@ -241,7 +241,7 @@ router.get('/idOrName', verifyMiddleWare, (req, res, next) => {
 //req.body에 new_status 필요: 새 상태메시지 내용
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
-router.post('/statusMessage', verifyMiddleWare, (req, res, next) => {
+router.post('/statusMessage', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
   const { new_status } = req.body;
 
@@ -265,7 +265,7 @@ router.post('/statusMessage', verifyMiddleWare, (req, res, next) => {
 //req.body에 location 필요: 원하는 장소
 //성공시, success: true
 //실패시, success: false, errorMessage: 'Incorrect id'
-router.post('/location', verifyMiddleWare, (req, res, next) => {
+router.post('/location', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
   const { location } = req.body;
 
@@ -288,7 +288,7 @@ router.post('/location', verifyMiddleWare, (req, res, next) => {
 //회원 탈퇴 api
 //성공시, success: true
 //실패시, success: false, errorMessage: 'Incorrect id'
-router.post('/deleteAccount', verifyMiddleWare, (req, res, next) => {
+router.post('/deleteAccount', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
 
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
@@ -314,7 +314,7 @@ router.post('/deleteAccount', verifyMiddleWare, (req, res, next) => {
 //req.body에 theLocation 필요: 유저들을 찾기 원하는 특정 장소
 //성공시, success: true, usersInLocation
 //실패시, success: false, errorMessage
-router.get('/usersInLocation', verifyMiddleWare, (req, res, next) => {
+router.get('/usersInLocation', verifyMiddleWare, async (req, res, next) => {
   const { theLocation } = req.body;
 
   const usersInLocation = await query(`SELECT name, current_status, role from users where location = '${theLocation}';`);
