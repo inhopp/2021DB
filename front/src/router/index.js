@@ -6,6 +6,7 @@ import Chat from '../components/pages/Chat';
 import Online from '../components/pages/Online';
 import Friend from '../components/pages/Friend';
 import ChatList from '../components/pages/ChatList';
+import EditInfo from '../components/pages/EditInfo';
 import http from '../services/http';
 import { ElNotification } from 'element-plus';
 
@@ -47,6 +48,12 @@ const routes = [
     path: '/chatList',
     name: 'ChatList',
     component: ChatList,
+    meta: { authRequired: true }
+  },
+  {
+    path: '/editInfo',
+    name: 'EditInfo',
+    component: EditInfo,
     meta: { authRequired: true }
   }
 ]

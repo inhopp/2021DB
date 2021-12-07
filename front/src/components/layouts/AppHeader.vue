@@ -2,7 +2,7 @@
   <div class="app_header">
     <el-row>
       <el-col :span="4">
-        <router-link to="/" class="button"> DATABASE 세미나 </router-link>
+        <router-link to="/" class="button"> Yonsei Talk </router-link>
       </el-col>
 			<el-col :span="16">
         <div v-if="name !== ''">
@@ -17,8 +17,9 @@
 					<router-link to="signin" class="button"> sign in </router-link>
 				</div>
 				<div v-else>
-					<span>{{ `${name} 님`}}</span>
-					<el-button @click="signOut()" size="small" style="margin-left: 10px;">sign out</el-button>
+					<span>{{ `${name}님`}}</span>
+          <el-button @click="edit()" size="small" style="margin-left: 10px;">Edit</el-button>
+          <el-button @click="signOut()" size="small" style="margin-left: 10px;">sign out</el-button>
 				</div>
 			</el-col>
     </el-row>
@@ -33,7 +34,7 @@ import http from "../../services/http";
 export default {
   name: "AppHeader",
 	computed: {
-		...mapState('user', ['name', 'id']),
+		...mapState('user', ['id', 'name', 'role']),
 	},
   data() {
     return {
@@ -41,6 +42,11 @@ export default {
   },
 	methods: {
 		...mapMutations('user', ['updateUser']),
+    edit() {
+      this.$router.push({
+        name: 'EditInfo'
+      });
+    },
 		async signOut() {
 			const { success, errorMessage } = (await http.get('/users/signOut')).data;
 			if (success) {
@@ -49,7 +55,10 @@ export default {
 
 				this.updateUser({
 					id: '',
-					name: ''
+					name: '',
+          current_status: '',
+          location: '',
+          role: ''
 				});
 				
 				this.$router.push({
