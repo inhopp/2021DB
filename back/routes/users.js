@@ -184,31 +184,77 @@ router.post('/signUp', async (req, res, next) => {
   }
 });
 
-// 내 정보 편집 관련 api - 김동우
-router.post('/users/statemessage', verifyMiddleWare, (req, res, next) => {
-  const { id, current_status } = req.body;
+/*
+// 내 정보 편집 관련 api 시작 - 김동우
+
+//상태메시지 변경 api
+//성공시 success: true
+//실패시 success: false, errorMessage: 'Incorrect id'
+router.post('/stateMessage', verifyMiddleWare, (req, res, next) => {
+  const { id, current_state } = req.decoded;
 
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
 
   if (queryResult.length > 0) {
-    const jwt = sign({
-      id,
-      name: queryResult[0].name
-    });
-    res.cookie('token', jwt, {
-      httpOnly: true,
-      expires: new Date( Date.now() + 60 * 60 * 1000 * 24 * 7) // 7일 후 만료
-    }).json({
-      success: true,
-      id,
-      name: queryResult[0].name
-    });
+    await query(`UPDATE users SET current_state = '${current_state}' WHERE id = '${id}';`);
+
+      res.json({
+        success: true
+      });
   } else {
     res.json({
       success: false,
-      errorMessage: 'Incorrect id or password'
+      errorMessage: 'Incorrect id'
     });
   }
 });
+
+//내 위치 변경 api
+//req.body에 location 필요: 원하는 장소
+//성공시, success: true
+//실패시, success: false, errorMessage: 'Incorrect id'
+router.post('/location', verifyMiddleWare, (req, res, next) => {
+  const { id } = req.decoded;
+  const { location } = req.body;
+
+  const queryResult = await query(`SELECT * from users where id = '${id}';`);
+
+  if (queryResult.length > 0) {
+    await query(`UPDATE users SET location = '${location}' WHERE id = '${id}';`);
+
+      res.json({
+        success: true
+      });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Incorrect id'
+    });
+  }
+});
+
+//회원 탈퇴 api
+//성공시, success: true
+//실패시, success: false, errorMessage: 'Incorrect id'
+router.post('/deleteAccount', verifyMiddleWare, (req, res, next) => {
+  const { id } = req.decoded;
+
+  const queryResult = await query(`SELECT * from users where id = '${id}';`);
+
+  if (queryResult.length > 0) {
+    await query(`DELETE FROM users WHERE id = '${id}';`);
+
+      res.json({
+        success: true
+      });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Incorrect id'
+    });
+  }
+});
+// 내 정보 편집 관련 api 끝 - 김동우
+*/
 
 module.exports = router;
