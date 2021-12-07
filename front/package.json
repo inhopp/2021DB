@@ -11,7 +11,7 @@
   "dependencies": {
     "axios": "^0.23.0",
     "core-js": "^3.6.5",
-    "element-plus": "^1.1.0-beta.24",
+    "element-plus": "^1.1.0-beta.20",
     "vue": "^3.0.0",
     "vue-3-socket.io": "^1.0.4",
     "vue-router": "^4.0.0-0",
@@ -42,8 +42,9 @@
     },
     "rules": {}
   },
-  "apiPort": "8400",
-  "socketPort": "8401",
+  "proxy": "http://localhost:3000",
+  "socketUrl": "http://localhost:4000",
+  "apiUrl": "http://localhost:3000",
   "browserslist": [
     "> 1%",
     "last 2 versions",
