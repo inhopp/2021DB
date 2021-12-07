@@ -184,8 +184,58 @@ router.post('/signUp', async (req, res, next) => {
   }
 });
 
-/*
-// 내 정보 편집 관련 api 시작 - 김동우
+
+// 친구 목록 관련 api
+
+//특정 id의 상태메시지 api
+//req.body에 id 필요: 알고자 하는 상태메시지를 가진 유저의 id
+//성공시, success: true, current_status
+//살패시, success: false, errorMessage
+router.get('/statusMessage', verifyMiddleWare, (req, res, next) => {
+  const { id } = req.body;
+
+  const queryResult = await query(`SELECT * from users where id = '${id}';`);
+
+  if (queryResult.length > 0) {
+    const current_status = await query(`SELECT current_status FROM users WHERE id = '${id}';`);
+
+      res.json({
+        success: true,
+        current_status
+      });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Incorrect id'
+    });
+  }
+});
+
+// 친구 검색 관련 api
+
+//해당 id 혹은 이름을 가진 유저 검색 api
+//req.body에 idOrName 필요: 검색하고자 하는 id 혹은 이름
+//성공시, success: true, queryResult
+//실패시, success: false, errorMessage
+router.get('/idOrName', verifyMiddleWare, (req, res, next) => {
+  const { idOrName } = req.body;
+
+  const queryResult = await query(`SELECT name, current_status from users where id = '${id}' or name = '${id}';`);
+
+  if (queryResult.length > 0) {
+    res.json({
+      success: true,
+      queryResult
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'No such id or name'
+    });
+  }
+});
+
+// 내 정보 편집 관련 api 시작
 
 //상태메시지 변경 api
 //req.body에 new_status 필요: 새 상태메시지 내용
@@ -256,7 +306,31 @@ router.post('/deleteAccount', verifyMiddleWare, (req, res, next) => {
     });
   }
 });
-// 내 정보 편집 관련 api 끝 - 김동우
-*/
+// 내 정보 편집 관련 api 끝
+
+// 내 주변 관련 api
+
+//특정 장소에 있는 유저들 api
+//req.body에 theLocation 필요: 유저들을 찾기 원하는 특정 장소
+//성공시, success: true, usersInLocation
+//실패시, success: false, errorMessage
+router.get('/usersInLocation', verifyMiddleWare, (req, res, next) => {
+  const { theLocation } = req.body;
+
+  const usersInLocation = await query(`SELECT name, current_status, role from users where location = '${theLocation}';`);
+
+  if (usersInLocation.length > 0) {
+    res.json({
+      success: true,
+      usersInLocation
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'No users in the location'
+    });
+  }
+});
+
 
 module.exports = router;
