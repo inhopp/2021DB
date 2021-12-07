@@ -184,7 +184,7 @@ router.post('/signUp', async (req, res, next) => {
   }
 });
 
-
+/*
 // 내 정보 편집 관련 api 시작 - 김동우
 
 //상태메시지 변경 api
