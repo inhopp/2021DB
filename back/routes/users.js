@@ -5,8 +5,9 @@ const { sign, verifyMiddleWare } = require('../modules/jwt');
 
 router.post('/signIn', async (req, res, next) => {
   const { id, password } = req.body;
-
-  const queryResult = await query(`SELECT * FROM users u, LOCATION L WHERE id = '${id}' and password = '${password}' and L.location_id = u.location_id;`);
+  
+  const queryResult = await query(`SELECT * FROM users WHERE id = '${id}' and password = '${password}';`);
+  console.log(queryResult);
 
   if (queryResult.length > 0) {
     const jwt = sign({
@@ -158,7 +159,7 @@ router.get('/signOut', verifyMiddleWare, (req, res, next) => {
 });
 
 router.post('/signUp', async (req, res, next) => {
-  const { id, password, name } = req.body;
+  const { id, password, name, role } = req.body;
   const id_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,20}$/; // 4~20자리의 문자 및 숫자 1개 이상씩 사용한 정규식
   const name_regex = /^[가-힣a-zA-z]{3,20}$/;
 
@@ -183,7 +184,7 @@ router.post('/signUp', async (req, res, next) => {
         errorMessage: 'Duplicate id'
       });
     } else {
-      await query(`INSERT INTO users(id, password, name) VALUES('${id}', '${password}', '${name}')`);
+      await query(`INSERT INTO users(id, password, name, role) VALUES('${id}', '${password}', '${name}', '${role}')`);
 
       res.json({
         success: true

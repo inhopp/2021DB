@@ -44,7 +44,12 @@ export default {
     return {
       form: {
         current_status: "",
-        location: "",
+        building: "",
+        floor: "",
+        ssid: "",
+        longitude: "",
+        latitude: "",
+        ip: "",
       },
     };
   },
@@ -54,13 +59,23 @@ export default {
       const { success, errorMessage } = (await http.post("/users/edit", this.form)).data;
 
       const current_status = this.form.current_status;
-      const location = this.form.location;
+      const building = this.form.building;
+      const floor = this.form.floor;
+      const ssid = this.form.ssid;
+      const longitude = this.form.longitude;
+      const latitude = this.form.latitude;
+      const ip = this.form.ip;
 
       if (success) {
         // vuex에 user 정보 저장
-        this.updateUser1({
+        this.updateUserEditInfo({
           current_status,
-          location
+          building,
+          floor,
+          ssid,
+          longitude,
+          latitude,
+          ip,
         });
 
         // Home page 이동(src/router/index 참고)

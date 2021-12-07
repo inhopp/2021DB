@@ -45,7 +45,7 @@ export default {
   methods: {
     ...mapMutations("user", ["updateUser"]),
     async signIn() {
-      const { success, errorMessage, id, name, current_status, location, role } = (
+      const { success, errorMessage, id, name, role, current_status, building, floor, ssid, longitude, latitude, ip } = (
         await http.post("/users/signIn", this.form)
       ).data;
 
@@ -54,9 +54,14 @@ export default {
         this.updateUser({
           id,
           name,
-          current_status,
-          location,
           role,
+          current_status,
+          building,
+          floor,
+          ssid,
+          longitude,
+          latitude,
+          ip,
         });
 
         // Home page 이동(src/router/index 참고)
