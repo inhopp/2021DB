@@ -19,7 +19,10 @@ router.post('/signIn', async (req, res, next) => {
     }).json({
       success: true,
       id,
-      name: queryResult[0].name
+      name: queryResult[0].name,
+      current_status: queryResult[0].current_status,
+      location: queryResult[0].location,
+      role: queryResult[0].role
     });
   } else {
     res.json({
@@ -238,40 +241,17 @@ router.get('/idOrName', verifyMiddleWare, async (req, res, next) => {
 // 내 정보 편집 관련 api 시작
 
 //상태메시지 변경 api
-//req.body에 new_status 필요: 새 상태메시지 내용
+//req.body에 current_status 필요: 새 상태메시지 내용
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
-router.post('/statusMessage', verifyMiddleWare, async (req, res, next) => {
+router.post('/edit', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
-  const { new_status } = req.body;
+  const { current_status, location } = req.body;
 
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
 
   if (queryResult.length > 0) {
-    await query(`UPDATE users SET current_status = '${new_status}' WHERE id = '${id}';`);
-
-      res.json({
-        success: true
-      });
-  } else {
-    res.json({
-      success: false,
-      errorMessage: 'Incorrect id'
-    });
-  }
-});
-
-//내 위치 변경 api
-//req.body에 location 필요: 원하는 장소
-//성공시, success: true
-//실패시, success: false, errorMessage: 'Incorrect id'
-router.post('/location', verifyMiddleWare, async (req, res, next) => {
-  const { id } = req.decoded;
-  const { location } = req.body;
-
-  const queryResult = await query(`SELECT * from users where id = '${id}';`);
-
-  if (queryResult.length > 0) {
+    await query(`UPDATE users SET current_status = '${current_status}' WHERE id = '${id}';`);
     await query(`UPDATE users SET location = '${location}' WHERE id = '${id}';`);
 
       res.json({
@@ -284,6 +264,8 @@ router.post('/location', verifyMiddleWare, async (req, res, next) => {
     });
   }
 });
+
+
 
 //회원 탈퇴 api
 //성공시, success: true
