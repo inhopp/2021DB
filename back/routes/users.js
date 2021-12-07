@@ -184,19 +184,19 @@ router.post('/signUp', async (req, res, next) => {
   }
 });
 
-/*
+
 // 내 정보 편집 관련 api 시작 - 김동우
 
 //상태메시지 변경 api
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
 router.post('/stateMessage', verifyMiddleWare, (req, res, next) => {
-  const { id, current_state } = req.decoded;
+  const { id, current_status } = req.decoded;
 
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
 
   if (queryResult.length > 0) {
-    await query(`UPDATE users SET current_state = '${current_state}' WHERE id = '${id}';`);
+    await query(`UPDATE users SET current_status = '${current_status}' WHERE id = '${id}';`);
 
       res.json({
         success: true
@@ -233,6 +233,7 @@ router.post('/location', verifyMiddleWare, (req, res, next) => {
   }
 });
 
+/*
 //회원 탈퇴 api
 //성공시, success: true
 //실패시, success: false, errorMessage: 'Incorrect id'
