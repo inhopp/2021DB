@@ -67,6 +67,7 @@ export default {
           type: chatData.from_id === this.id ? 'chat_right' : 'chat_left',
           message: chatData.text,
           created_at: chatData.date_time,
+          is_read: chatData.is_read,
           is_rendezvous: chatData.is_rendezvous,
           set_time: chatData.set_time,
           building: chatData.building,
