@@ -54,7 +54,7 @@ export default {
     };
   },
   methods: {
-    ...mapMutations("user", ["updateUser1"]),
+    ...mapMutations("user", ["updateUserEditInfo"]),
     async editInfo() {
       const { success, errorMessage } = (await http.post("/users/edit", this.form)).data;
 
