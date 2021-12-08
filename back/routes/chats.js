@@ -28,8 +28,27 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-//targetId와 나눈 채팅들의 { from_id, to_id, text, date_time, is_rendezvous, set_time, building, floor, ssid, deleted }을 시간순으로 정렬해서 리턴하는 api
-//req.body에 targetId 필요
+//targetId와 나눈 이전의 채팅들을 모두 읽음 처리하는 api
+//성공시, success: true
+//실패시, success: false, errorMessage
+router.post('/chatData/read/:targetId', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  const { targetId }= req.params;
+
+  if (id) {
+    await query(`UPDATE message SET is_read = 1 where from_id = '${targetId}' and to_id = '${id}';`);
+    res.json({
+      success: true
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Authentication is required'
+    });
+  }
+});
+
+//targetId와 나눈 채팅들의 { from_id, to_id, text, date_time, is_read, is_rendezvous, set_time, building, floor, ssid, deleted }을 시간순으로 정렬해서 리턴하는 api
 //성공시, success: true, chatDatas
 //실패시, success: false, errorMessage
 // - 랑데부 메시지가 아닐시, 관련 데이터는 null로 반환
@@ -38,9 +57,9 @@ router.get('/chatData/:targetId', verifyMiddleWare, async (req, res, next) => {
   const { targetId }= req.params;
 
   if (id) {
-    const chatDatas = await query(`WITH b AS (SELECT text, a.f_id as from_id, a.t_id as to_id, date_time, is_rendezvous, message_id
+    const chatDatas = await query(`WITH b AS (SELECT text, a.f_id as from_id, a.t_id as to_id, date_time, is_rendezvous, message_id, is_read
       FROM message, (SELECT f.id as f_id, t.id as t_id FROM users f, users t WHERE (f.id = '${id}' and t.id = '${targetId}') OR (t.id = '${id}' and f.id = '${targetId}')) a
-      WHERE (from_id = a.f_id and to_id = a.t_id)) select from_id, to_id, text, date_time, is_rendezvous, deleted, set_time, building, floor, ssid FROM b left join rendezvous_message USING (message_id) ORDER BY date_time ASC;`);
+      WHERE (from_id = a.f_id and to_id = a.t_id)) select from_id, to_id, text, date_time, is_read, is_rendezvous, deleted, set_time, building, floor, ssid FROM b left join rendezvous_message USING (message_id) ORDER BY date_time ASC;`);
     res.json({
       success: true,
       chatDatas

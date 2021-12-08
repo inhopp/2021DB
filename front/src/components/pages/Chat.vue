@@ -58,32 +58,44 @@ export default {
     ...mapState('user', ['id']),
   },
   async created() {
-    // 이전 대화 내용 가져오기
-    const { success, chatDatas, errorMessage } = (await http.get(`/chats/chatData/${this.$route.params.userId}`)).data;
-    if (success) {
-      chatDatas.forEach(chatData => {
-        this.chatDatas.push({
-          ...chatData,
-          type: chatData.from_id === this.id ? 'chat_right' : 'chat_left',
-          message: chatData.text,
-          created_at: chatData.date_time,
-          is_rendezvous: chatData.is_rendezvous,
-          set_time: chatData.set_time,
-          building: chatData.building,
-          floor: chatData.floor,
-          ssid: chatData.ssid,
-          deleted: chatData.deleted
-        });
-
-        this.chatDatas.sort((a, b) => a.created_at - b.created_at);
-      });
-    } else {
+    // 이전 대화 읽음 처리
+    const { success, errorMessage } = (await http.post(`/chats/chatData/read/${this.$route.params.userId}`)).data;
+    if (!success) {
       ElNotification({
-        title: 'Get prev chat datas',
+        title: 'read prev chat datas',
         message: errorMessage,
         type: 'error'
       });
+    } else {
+      // 이전 대화 내용 가져오기
+      const { success, chatDatas, errorMessage } = (await http.get(`/chats/chatData/${this.$route.params.userId}`)).data;
+      if (success) {
+        chatDatas.forEach(chatData => {
+          this.chatDatas.push({
+            ...chatData,
+            type: chatData.from_id === this.id ? 'chat_right' : 'chat_left',
+            message: chatData.text,
+            created_at: chatData.date_time,
+            is_read: chatData.is_read,
+            is_rendezvous: chatData.is_rendezvous,
+            set_time: chatData.set_time,
+            building: chatData.building,
+            floor: chatData.floor,
+            ssid: chatData.ssid,
+            deleted: chatData.deleted
+          });
+
+          this.chatDatas.sort((a, b) => a.created_at - b.created_at);
+        });
+      } else {
+        ElNotification({
+          title: 'Get prev chat datas',
+          message: errorMessage,
+          type: 'error'
+        });
+      }
     }
+    
     // socket 연결
     this.sockets.subscribe('CHAT_MESSAGE', msg => {
       this.chatDatas.push({
