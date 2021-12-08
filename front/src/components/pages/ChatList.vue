@@ -13,6 +13,7 @@
             <el-table-column type="index" width="50" />
             <el-table-column prop="id" label="id" width="100" />
             <el-table-column prop="name" label="name" width="100" />
+            <el-table-column prop="role" label="role" width="100" />
             <el-table-column label="message">
               <template #default="scope">
 								<span style="white-space: nowrap;">
@@ -26,7 +27,7 @@
                   size="mini"
                   type="primary"
                   @click="
-                    $router.push({ name: 'Chat', params: { userId: scope.row.id } })
+                    $router.push({ name: 'Chat', params: { userId: scope.row.id, userName: scope.row.name, userRole: scope.row.role } })
                   "
                   >chat</el-button
                 >
