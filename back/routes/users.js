@@ -252,6 +252,7 @@ router.get('/idOrName', verifyMiddleWare, async (req, res, next) => {
 //실패시 success: false, errorMessage: 'Incorrect id'
 router.post('/edit', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
+  //location 수정 필요
   const { current_status, location } = req.body;
 
   const upload = multer({
@@ -261,7 +262,7 @@ router.post('/edit', verifyMiddleWare, async (req, res, next) => {
 
   if (queryResult.length > 0) {
     await query(`UPDATE users SET current_status = '${current_status}' WHERE id = '${id}';`);
-    await query(`UPDATE users SET location = '${location}' WHERE id = '${id}';`);
+    await query(`UPDATE LOCATION SET location = '${location}' WHERE id = '${id}';`);
 
       res.json({
         success: true
