@@ -28,18 +28,19 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-//targetId와 나눈 채팅들의 { from_id, to_id, text, date_time }을 시간순으로 정렬해서 리턴하는 api
+//targetId와 나눈 채팅들의 { from_id, to_id, text, date_time, is_rendezvous, set_time, building, floor, ssid, deleted }을 시간순으로 정렬해서 리턴하는 api
 //req.body에 targetId 필요
 //성공시, success: true, chatDatas
 //실패시, success: false, errorMessage
+// - 랑데부 메시지가 아닐시, 관련 데이터는 null로 반환
 router.get('/chatData/:targetId', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
   const { targetId }= req.params;
 
   if (id) {
-    const chatDatas = await query(`SELECT text, a.f_id as from_id, a.t_id as to_id, date_time 
-      FROM message, (SELECT f.id as f_id, t.id as t_id FROM users f, users t WHERE (f.id = '${id}' and t.id = '${targetId}') OR (t.id = '${id}' and f.id = '${targetId}')) a
-      WHERE (from_id = a.f_id and to_id = a.t_id) ORDER BY date_time ASC;`);
+    const chatDatas = await query(`WITH b AS (SELECT text, a.f_id as from_id, a.t_id as to_id, date_time, is_rendezvous, message_id
+      FROM message, (SELECT f.id as f_id, t.id as t_id FROM users f, users t WHERE (f.id = 'qwe123' and t.id = 'qwer1234') OR (t.id = 'qwe123' and f.id = 'qwer1234')) a
+      WHERE (from_id = a.f_id and to_id = a.t_id)) select from_id, to_id, text, date_time, is_rendezvous, deleted, set_time, building, floor, ssid FROM b left join rendezvous_message USING (message_id) ORDER BY date_time ASC;`);
     res.json({
       success: true,
       chatDatas
