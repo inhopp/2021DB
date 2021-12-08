@@ -278,8 +278,7 @@ router.post('/editCurrentStatus', verifyMiddleWare, async (req, res, next) => {
 //실패시 success: false, errorMessage: 'Incorrect id'
 router.post('/updateLocation', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
-  //location 수정 필요
-  const { building, floor, ssid } = req.body;
+  const { building, floor, ssid, longitude, latitude, ip } = req.body;
 
   const upload = multer({
     dest: '../upload'
@@ -287,12 +286,23 @@ router.post('/updateLocation', verifyMiddleWare, async (req, res, next) => {
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
 
   if (queryResult.length > 0) {
-    await query(`UPDATE location SET building = '${building}' WHERE id = '${id}';`);
-    await query(`UPDATE location SET floor = '${floor}' WHERE id = '${id}';`);
-    await query(`UPDATE location SET ssid = '${ssid}' WHERE id = '${id}';`);
-      res.json({
-        success: true
-      });
+    const findLocation = await query(`SELECT * FROM location WHERE building = '${building}' and floor = '${floor}' and ssid = '${ssid}'`);
+    if (findLocation.length == 0) {
+      await query(`INSERT INTO location(building, floor, ssid, longitude, latitude, ip) 
+      VALUES('${building}', '${floor}', '${ssid}', '${longitude}', '${latitude}', '${ip}')`);
+    }
+    await query(`UPDATE user SET building = '${building}' WHERE id = '${id}';`);
+    await query(`UPDATE user SET floor = '${floor}' WHERE id = '${id}';`);
+    await query(`UPDATE user SET ssid = '${ssid}' WHERE id = '${id}';`);
+    res.json({
+      success: true,
+      building,
+      floor,
+      ssid,
+      longitude,
+      latitude,
+      ip,
+    });
   } else {
     res.json({
       success: false,
