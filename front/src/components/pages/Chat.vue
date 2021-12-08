@@ -64,7 +64,9 @@ export default {
       chatDatas.forEach(chatData => {
         this.chatDatas.push({
           ...chatData,
-          type: chatData.from_id === this.id ? 'chat_right' : 'chat_left'
+          type: chatData.from_id === this.id ? 'chat_right' : 'chat_left',
+          message: chatData.text,
+          created_at: chatData.date_time
         });
 
         this.chatDatas.sort((a, b) => a.created_at - b.created_at);
