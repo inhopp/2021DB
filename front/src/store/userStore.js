@@ -12,7 +12,8 @@ export default {
     longitude: '',
     latitude: '',
     ip: '',
-    friends: []
+    friends: [],
+    searchs: []
   },
   mutations: {
     //sign_in
@@ -43,6 +44,9 @@ export default {
     
     updateFriends(state, { friends }) {
       state.friends = [...friends];
+    },
+    updateSearchs(state, { searchs }) {
+      state.searchs = [...searchs];
     },
   },
 };

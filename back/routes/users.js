@@ -59,7 +59,7 @@ router.get('/friends', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
 
   if (id) {
-    const friends = (await query(`SELECT id, name FROM users where id in (SELECT to_id FROM friends WHERE from_id in (SELECT id FROM users WHERE id = '${id}')) ORDER BY name ASC;`));
+    const friends = (await query(`SELECT id, name, role, current_status FROM users where id in (SELECT to_id FROM friends WHERE from_id in (SELECT id FROM users WHERE id = '${id}')) ORDER BY name ASC;`));
 
     res.json({
       success: true,
@@ -227,15 +227,14 @@ router.get('/statusMessage', verifyMiddleWare, async (req, res, next) => {
 //req.body에 idOrName 필요: 검색하고자 하는 id 혹은 이름
 //성공시, success: true, queryResult
 //실패시, success: false, errorMessage
-router.get('/idOrName', verifyMiddleWare, async (req, res, next) => {
+router.post('/idOrName', verifyMiddleWare, async (req, res, next) => {
   const { idOrName } = req.body;
-
-  const queryResult = await query(`SELECT name, current_status from users where id = '${idOrName}' or name = '${idOrName}';`);
-
-  if (queryResult.length > 0) {
+  const searchs = await query(`SELECT id, name, role, current_status from users where id = '${idOrName}';`);
+  console.log(searchs);
+  if (searchs.length > 0) {
     res.json({
       success: true,
-      queryResult
+      searchs
     });
   } else {
     res.json({
