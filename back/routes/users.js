@@ -7,13 +7,13 @@ router.post('/signIn', async (req, res, next) => {
   const { id, password } = req.body;
   
   const queryResult = await query(`SELECT * FROM users WHERE id = '${id}' and password = '${password}';`);
-  console.log(queryResult);
 
   if (queryResult.length > 0) {
     const jwt = sign({
       id,
       name: queryResult[0].name
     });
+    await query(`UPDATE users SET active = 1 WHERE id = '${id}';`);
     res.cookie('token', jwt, {
       httpOnly: true,
       expires: new Date( Date.now() + 60 * 60 * 1000 * 24 * 7) // 7일 후 만료
@@ -143,10 +143,11 @@ router.post('/removeFriends', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-router.get('/signOut', verifyMiddleWare, (req, res, next) => {
+router.get('/signOut', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
 
   if (id) {
+    await query(`UPDATE users SET active = 0 WHERE id = '${id}';`);
     res.clearCookie('token').json({
       success: true
     })
