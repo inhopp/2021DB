@@ -39,7 +39,7 @@ router.get('/chatData/:targetId', verifyMiddleWare, async (req, res, next) => {
 
   if (id) {
     const chatDatas = await query(`WITH b AS (SELECT text, a.f_id as from_id, a.t_id as to_id, date_time, is_rendezvous, message_id
-      FROM message, (SELECT f.id as f_id, t.id as t_id FROM users f, users t WHERE (f.id = 'qwe123' and t.id = 'qwer1234') OR (t.id = 'qwe123' and f.id = 'qwer1234')) a
+      FROM message, (SELECT f.id as f_id, t.id as t_id FROM users f, users t WHERE (f.id = '${id}' and t.id = '${targetId}') OR (t.id = '${id}' and f.id = '${targetId}')) a
       WHERE (from_id = a.f_id and to_id = a.t_id)) select from_id, to_id, text, date_time, is_rendezvous, deleted, set_time, building, floor, ssid FROM b left join rendezvous_message USING (message_id) ORDER BY date_time ASC;`);
     res.json({
       success: true,
