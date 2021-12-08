@@ -250,19 +250,15 @@ router.get('/idOrName', verifyMiddleWare, async (req, res, next) => {
 //req.body에 current_status 필요: 새 상태메시지 내용
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
-router.post('/edit', verifyMiddleWare, async (req, res, next) => {
+router.post('/editCurrentStatus', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
   //location 수정 필요
-  const { current_status, location } = req.body;
+  const { current_status } = req.body;
 
-  const upload = multer({
-    dest: '../upload'
-  })
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
 
   if (queryResult.length > 0) {
     await query(`UPDATE users SET current_status = '${current_status}' WHERE id = '${id}';`);
-    await query(`UPDATE LOCATION SET location = '${location}' WHERE id = '${id}';`);
 
       res.json({
         success: true
@@ -274,6 +270,36 @@ router.post('/edit', verifyMiddleWare, async (req, res, next) => {
     });
   }
 });
+
+//위치 변경 api
+//req.body에 ??? 필요:  내용
+//성공시 success: true
+//실패시 success: false, errorMessage: 'Incorrect id'
+router.post('/updateLocation', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  //location 수정 필요
+  const { building, floor, ssid } = req.body;
+
+  const upload = multer({
+    dest: '../upload'
+  })
+  const queryResult = await query(`SELECT * from users where id = '${id}';`);
+
+  if (queryResult.length > 0) {
+    await query(`UPDATE location SET building = '${building}' WHERE id = '${id}';`);
+    await query(`UPDATE location SET floor = '${floor}' WHERE id = '${id}';`);
+    await query(`UPDATE location SET ssid = '${ssid}' WHERE id = '${id}';`);
+      res.json({
+        success: true
+      });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Incorrect id'
+    });
+  }
+});
+
 
 
 
