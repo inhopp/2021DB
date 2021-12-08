@@ -11,13 +11,21 @@
             <el-form-item label="상태메시지" prop="current_status">
               <el-input v-model="form.current_status" type="textarea"></el-input>
             </el-form-item>
-            <el-form-item label="위치" prop="location">
-              <el-select v-model="form.location" placeholder="Please select your location">
-                <el-option label="공학관" value="공학관"></el-option>
-                <el-option label="백양관" value="백양관"></el-option>
-                <el-option label="학생회관" value="학생회관"></el-option>
-                <el-option label="신촌역" value="신촌역"></el-option>
-              </el-select>
+            <!-- upload button -->
+            <el-form-item>
+            <el-upload
+                class="upload-demo"
+                action="https://jsonplaceholder.typicode.com/posts/"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :before-remove="beforeRemove"
+                multiple
+                :limit="3"
+                :on-exceed="handleExceed"
+                :file-list="fileList"
+              >
+                <el-button size="small" type="primary">Click to upload</el-button>
+              </el-upload>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="editInfo()">변경하기</el-button>
@@ -54,7 +62,13 @@ export default {
     };
   },
   methods: {
-    ...mapMutations("user", ["updateUser1"]),
+    ...mapMutations("user", ["updateUserEditInfo"]),
+    loadTextFromFile(ev) {
+      const file = ev.target.files[0];
+      const reader = new FileReader();
+      reader.onload = e => this.$emit("load", e.target.result);
+      reader.readAsText(file);
+    },
     async editInfo() {
       const { success, errorMessage } = (await http.post("/users/edit", this.form)).data;
 

@@ -254,6 +254,9 @@ router.post('/edit', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
   const { current_status, location } = req.body;
 
+  const upload = multer({
+    dest: '../upload'
+  })
   const queryResult = await query(`SELECT * from users where id = '${id}';`);
 
   if (queryResult.length > 0) {
