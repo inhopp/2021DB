@@ -42,7 +42,7 @@ module.exports = io => {
 		socket.on('CHAT_MESSAGE', async msg => {
 			const targetSockets = findSocketById(io, msg.targetId);
 
-			await query(`INSERT INTO chatDatas(from_id, to_id, message, created_at) SELECT f.user_id, t.user_id, '${msg.message}', '${msg.created_at}' FROM users f, users t WHERE f.id = '${socket.user_id}' and t.id = '${msg.targetId}';`)
+			await query(`INSERT INTO message(from_id, to_id, text, date_time) SELECT f.id, t.id, '${msg.message}', '${msg.created_at}' FROM users f, users t WHERE f.id = '${socket.user_id}' and t.id = '${msg.targetId}';`)
 
 			if (targetSockets.length > 0) {
 				targetSockets.forEach(soc => soc.emit('CHAT_MESSAGE', {
