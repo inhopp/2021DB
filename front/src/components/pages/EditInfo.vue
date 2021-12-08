@@ -7,16 +7,17 @@
             <span>내 정보 수정하기</span>
           </div>
           <br />
-          <el-form ref="form" :model="form" label-width="120px">
+          <el-form ref="status_form" :model="status_form" label-width="120px">
             <el-form-item label="상태메시지" prop="current_status">
-              <el-input v-model="form.current_status" type="textarea"></el-input>
+              <el-input v-model="status_form.current_status" type="textarea"></el-input>
               <el-button type="primary" @click="editCurrentStatus()">변경하기</el-button>
             </el-form-item>
-            <el-form-item label="현재위치" prop="location">            
+            <!--위치 파일 업로드 프론트 임시 주석처리> -->
+            <!-- <el-form-item label="현재위치" prop="location">            
                 <label class="text-reader">
                   업데이트하기
                   <input type="file" @change="loadTextFromFile">
-                </label>
+                </label> -->
             <!-- <el-upload
                 class="upload-demo"
                 action="https://jsonplaceholder.typicode.com/posts/"
@@ -31,11 +32,8 @@
               >
                 <el-button size="small" type="primary">업데이트하기</el-button>
               </el-upload> -->
-            </el-form-item>
-           
-            <el-form-item label="로그아웃">
-              <el-button @click="signOut()">로그아웃</el-button>
-            </el-form-item>
+            <!-- </el-form-item> -->
+
             <el-form-item label="회원탈퇴">
               <el-button type="danger" @click="remove()">회원탈퇴</el-button>
             </el-form-item>
@@ -59,31 +57,37 @@ export default {
   name: "EditInfo",
   data() {
     return {
-      form: {
+      status_form: {
         current_status: "",
+      },
+      /*
+      //위치파일 형식
+      location_form: {
         building: "",
         floor: "",
         ssid: "",
         longitude: "",
         latitude: "",
         ip: "",
-      },
+      }
+      */
     };
   },
   methods: {
     ...mapMutations("user", ["updateUserEditInfo"]),
+    /*
+    //위치 file 읽기?
     loadTextFromFile(ev) {
       const file = ev.target.files[0];
       const reader = new FileReader();
       reader.onload = e => this.$emit("load", e.target.result);
-      reader.readAsText(file);  
-    
-    
+      reader.readAsText(file);
     },
+    */
     async editCurrentStatus() {
-      const { success, errorMessage } = (await http.post("/users/editCurrentStatus", this.form)).data;
+      const { success, errorMessage } = (await http.post("/users/editCurrentStatus", this.status_form)).data;
 
-      const current_status = this.form.current_status;
+      const current_status = this.status_form.current_status;
      
       if (success) {
         // vuex에 user 정보 저장
@@ -104,15 +108,12 @@ export default {
         });
       }
     },
+    //
+    //위치 수정하기
+    //
+    /*
     async updateLocation() {
-      const { success, errorMessage } = (await http.post("/users/updateLocation", this.form)).data;
-
-      const building = this.form.building;
-      const floor = this.form.floor;
-      const ssid = this.form.ssid;
-      const longitude = this.form.longitude;
-      const latitude = this.form.latitude;
-      const ip = this.form.ip;
+      const { success, errorMessage } = (await http.post("/users/updateLocation", this.location_form)).data;
 
       if (success) {
         // vuex에 user 정보 저장
@@ -138,13 +139,15 @@ export default {
         });
       }
     },
+    */
+
     cancel() {
       this.$router.push({
         name: 'Home'
       });
     },
     async remove() {
-      const { success, errorMessage } = (await http.post("/users/deleteAccount", this.form.current_status)).data;
+      const { success, errorMessage } = (await http.post("/users/deleteAccount")).data;
         if (success) {
         this.$router.push({
           name: "Home",
@@ -163,39 +166,6 @@ export default {
         });
       }
     },
-
-    //추가
-		async signOut() {
-			const { success, errorMessage } = (await http.get('/users/signOut')).data;
-			if (success) {
-        // 소켓 연결 끊기
-        this.$socket.disconnect();
-
-				this.updateUser({
-					id: '',
-					name: '',
-          current_status: '',
-          location: '',
-          role: ''
-				});
-				
-				this.$router.push({
-					name: 'SignIn'
-				});
-
-        ElNotification({
-          title: 'Sign out',
-          message: 'success',
-          type: 'success'
-        });
-			} else {
-				ElNotification({
-          title: 'Sign out',
-          message: errorMessage,
-          type: 'error'
-        });
-			}
-		},
   },
 };
 </script>
