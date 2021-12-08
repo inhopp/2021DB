@@ -6,7 +6,7 @@
       </el-col>
 			<el-col :span="16">
         <div v-if="name !== ''">
-          <el-link el-link :underline="false" @click="$router.push({ name: 'Online' })">Online</el-link>
+          <el-link el-link :underline="false" @click="$router.push({ name: 'Search' })">Search</el-link>
           <el-link el-link :underline="false" @click="$router.push({ name: 'ChatList' })">Chat List</el-link>
           <el-link el-link :underline="false" @click="$router.push({ name: 'Friend' })">Friend List</el-link>
         </div>

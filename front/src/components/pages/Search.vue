@@ -1,13 +1,23 @@
 <template>
-  <div class="online">
+  <div class="search">
     <el-row justify="center" align="middle" style="height: 100%">
-      <el-col :span="6" style="height: 100%">
+      <el-col :span="10" style="height: 100%">
         <el-card style="height: 100%" body-style="height: 100%;">
-          <h3 style="text-align: center">Online People</h3>
-          <el-table :data="users" style="width: 100%" max-Height="700px">
+          <h3 style="text-align: center"> Search Users </h3>
+
+          <el-form align="center" ref="form" :model="form" label-width="120px">
+            <el-form-item label="ID or Name">
+              <el-input v-model="form.idOrName" style="width: 200px"></el-input>
+              <el-button type="primary" @click="search()" >Search</el-button> 
+            </el-form-item>
+          </el-form>
+
+          <el-table :data="searchs" style="width: 100%" max-Height="700px">
             <el-table-column type="index" width="50" />
             <el-table-column prop="id" label="id" />
             <el-table-column prop="name" label="name" />
+            <el-table-column prop="role" label="role" />
+            <el-table-column prop="current_status" label="Message" />
             <el-table-column label="friend" align="center">
               <template #default="scope">
                 <el-button
@@ -28,16 +38,6 @@
                 </el-button>
               </template>
             </el-table-column>
-            <el-table-column label="chat" align="center">
-              <template #default="scope">
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="$router.push({ name: 'Chat', params: { userId: scope.row.id } })"
-                  >chat</el-button
-                >
-              </template>
-            </el-table-column>
           </el-table>
         </el-card>
       </el-col>
@@ -51,13 +51,36 @@ import { ElNotification } from 'element-plus';
 import http from '../../services/http';
 
 export default {
-  name: "Chat",
+  name: "Search",
+    data() {
+    return {
+      form: {
+        idOrName: '',
+      },
+    };
+  },
   computed: {
-    ...mapState('user', ['id', 'friends']),
-    ...mapState('online', ['users']),
+    ...mapState('user', ['id', 'friends', 'searchs']),
   },
   methods: {
     ...mapMutations('user', ['updateFriends']),
+    ...mapMutations('user', ['updateSearchs']),
+
+    async search() {
+      const { success, errorMessage, searchs } = (await http.post('/users/idOrName', this.form)).data;
+      if (success) {
+        this.updateSearchs({
+          searchs
+        });
+      } else {
+        ElNotification({
+          title: "Search",
+          message: errorMessage,
+          type: "error",
+        });        
+      }
+    },
+
     async addFriend(friend_id, friend_name) {
       const { success, errorMessage } = (await http.post('/users/addFriends', {
         friend_id
@@ -122,7 +145,7 @@ export default {
 </script>
 
 <style scoped>
-.online {
+.search {
   height: 100%;
 }
 </style>
