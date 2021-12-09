@@ -7,12 +7,11 @@
             <span>내 정보 수정하기</span>
           </div>
           <br />
-          <el-form ref="status_form" :model="status_form" label-width="120px">
+          <el-form ref="statusForm" :model="statusForm" label-width="120px" :rules="rules">
             <el-form-item label="상태메시지" prop="current_status">
-              <el-input v-model="status_form.current_status" type="textarea"></el-input>
+              <el-input v-model="statusForm.current_status" type="textarea"></el-input>
               <el-button type="primary" @click="editCurrentStatus()">변경하기</el-button>
             </el-form-item>
-            <!--위치 파일 업로드 프론트 임시 주석처리> -->
             <el-form-item label="현재위치" prop="location">
             <label class="text-reader">
                   <input type="file" id="file" refs="myFile" @change="loadTextFromFile">
@@ -43,10 +42,23 @@ import { ElNotification } from 'element-plus';
 export default {
   name: "EditInfo",
   data() {
+    const statusValidator = (rule, value, callback) => {
+      const regex = /^.{0,20}$/; // 모든 글자 20자 이하
+
+      if (!regex.test(value)) {
+        callback(new Error("글자를 20자 이하로 입력해주세요"));
+      } else {
+        callback();
+      }
+    };
     return {
-      status_form: {
+      statusForm: {
         current_status: "",
       },
+      rules: {
+        current_status: [{ validator: statusValidator, trigger: "blur" }],
+      },
+      //위치파일 형식
       location_form: {
         content: null,
         building: null,
@@ -106,29 +118,58 @@ export default {
         });
       }
     },
-    async editCurrentStatus() {
-      const { success, errorMessage } = (await http.post("/users/editCurrentStatus", this.status_form)).data;
+   
+    editCurrentStatus() {
+      this.$refs["statusForm"].validate(async (valid) => {
+        if (valid) {
+          const { success, errorMessage } = (
+            await http.post("/users/editCurrentStatus", this.statusForm)
+          ).data;
+          
+          const current_status = this.statusForm.current_status;
 
-      const current_status = this.status_form.current_status;
+          if (success) {
+            // vuex에 user 정보 저장
+            this.updateUserEditInfo({
+              current_status,
+            });
+            ElNotification({
+              title: "상태메세지 수정",
+              message: "상태메세지가 변경되었습니다",
+              type: "success",
+            });
+          } else {
+            ElNotification({
+              title: "상태메세지 수정",
+              message: errorMessage,
+              type: "error",
+            });
+          }
+        } else {
+          return false;
+        }
+      });
+
+      
      
-      if (success) {
-        // vuex에 user 정보 저장
-        this.updateUserEditInfo({
-          current_status,
-        });
+      // if (success) {
+      //   // vuex에 user 정보 저장
+      //   this.updateUserEditInfo({
+      //     current_status,
+      //   });
 
-        ElNotification({
-          title: "상태메시지 수정",
-          message: "성공하였습니다",
-          type: "success",
-        });
-      } else {
-        ElNotification({
-          title: "상태메시지 수정",
-          message: errorMessage,
-          type: "error",
-        });
-      }
+      //   ElNotification({
+      //     title: "상태메시지 수정",
+      //     message: "성공하였습니다",
+      //     type: "success",
+      //   });
+      // } else {
+      //   ElNotification({
+      //     title: "상태메시지 수정",
+      //     message: errorMessage,
+      //     type: "error",
+      //   });
+      // }
     },
     //
     //위치 수정하기
