@@ -1,7 +1,7 @@
 <template>
   <div class="chatList">
     <el-row justify="center" align="middle" style="height: 100%">
-      <el-col :span="10" style="height: 100%">
+      <el-col :span="14" style="height: 100%">
         <el-card style="height: 100%" body-style="height: 100%;">
           <h3 style="text-align: center">Chat List</h3>
           <el-table
@@ -14,13 +14,9 @@
             <el-table-column prop="id" label="id" width="100" />
             <el-table-column prop="name" label="name" width="100" />
             <el-table-column prop="role" label="role" width="100" />
-            <el-table-column label="message">
-              <template #default="scope">
-								<span style="white-space: nowrap;">
-									{{ scope.row.message }}
-								</span>
-							</template>
+            <el-table-column prop="text" label="last text" width="100">
             </el-table-column>
+            <el-table-column prop="date_time" label="time" width="100" />
             <el-table-column label="chat" align="center">
               <template #default="scope">
                 <el-button
@@ -61,8 +57,8 @@ export default {
         this.chatList.push({
           id: from_id,
           name: from_name,
-          message,
-          created_at,
+          text: message,
+          date_time: created_at,
         });
       }
 

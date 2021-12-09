@@ -1,7 +1,7 @@
 <template>
   <div class="friend">
     <el-row justify="center" align="middle" style="height: 100%">
-      <el-col :span="10" style="height: 100%">
+      <el-col :span="14" style="height: 100%">
         <el-card style="height: 100%" body-style="height: 100%;">
           <h3 style="text-align: center">Friend</h3>
           <el-table :data="friends" style="width: 100%" max-Height="700px">
