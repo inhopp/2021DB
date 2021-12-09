@@ -15,8 +15,13 @@
             <el-table-column prop="name" label="name" width="100" />
             <el-table-column prop="role" label="role" width="100" />
             <el-table-column prop="text" label="last text" width="100">
+            <el-table-column prop="date_time" label="time" width="100" />    
+            <el-table-column label="online" align="center">
+                <template #default="scope">
+                    <span v-if="users.find(user => user.id === scope.row.id)" class="online"> Online </span>
+                    <span v-else class="offline"> Offline </span>
+                </template>
             </el-table-column>
-            <el-table-column prop="date_time" label="time" width="100" />
             <el-table-column label="chat" align="center">
               <template #default="scope">
                 <el-button
@@ -37,11 +42,17 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import { ElNotification } from "element-plus";
 import http from "../../services/http";
 
 export default {
   name: "ChatList",
+  computed: {
+    ...mapState('user', ['id', 'friends']),
+    ...mapState('online', ['users']),
+  },
+  ...mapMutations('user', ['updateFriends']),
   async created() {
     const { success, errorMessage, chatList } = (await http.get("/chats/list")).data;
 
@@ -91,5 +102,11 @@ export default {
 <style scoped>
 .chatList {
   height: 100%;
+}
+.online {
+  color: green;
+}
+.offline {
+  color: red;
 }
 </style>
