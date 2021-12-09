@@ -229,8 +229,7 @@ router.get('/editCurrentStatus', verifyMiddleWare, async (req, res, next) => {
 //실패시, success: false, errorMessage
 router.post('/idOrName', verifyMiddleWare, async (req, res, next) => {
   const { idOrName } = req.body;
-  const searchs = await query(`SELECT id, name, role, current_status from users where id = '${idOrName}';`);
-  console.log(searchs);
+  const searchs = await query(`SELECT id, name, role, current_status from users where id like '%${idOrName}%' or name like '%${idOrName}%';`);
   if (searchs.length > 0) {
     res.json({
       success: true,
