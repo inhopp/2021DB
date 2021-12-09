@@ -284,27 +284,39 @@ router.post('/editCurrentStatus', verifyMiddleWare, async (req, res, next) => {
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
 router.post('/updateLocation', verifyMiddleWare, async (req, res, next) => {
-  console.log("HI");
   const { content, building, longitude, latitude, floor, SSID, IP } = req.body;
   const id = req.decoded;
-  console.log("HI");
   const findLocation = await query(`SELECT * FROM location WHERE building = '${building}' and floor = '${floor}' and ssid = '${SSID}'`);
-  console.log("HI");
   if (findLocation.length == 0) {
     await query(`INSERT INTO location(building, floor, ssid, longitude, latitude, ip) 
     VALUES('${building}', '${floor}', '${SSID}', '${longitude}', '${latitude}', '${IP}')`);
   }
-  console.log("HI");
   await query(`UPDATE users SET building = '${building}' WHERE id = '${id}';`);
   await query(`UPDATE users SET floor = '${floor}' WHERE id = '${id}';`);
   await query(`UPDATE users SET ssid = '${SSID}' WHERE id = '${id}';`);
-  console.log("HI");  
   res.json({
     success: true,
   });
 });
 
-
+router.get('/arounds', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  const myLongLat = await query(`SELECT L.longitude, L.latitude FROM location L, users U WHERE U.id='${id} AND U.building=L.building AND U.floor=L.floor AND U.ssid=L.ssid';`)
+  const allLongLat = await query(`SELECT DISTINCT L.longitude, L.latitude FROM location L`)
+  if (myLongLat.length==0){
+    res.json({
+      success: false,
+      errorMessage: "You should first upload your Location."
+    })
+  } else {
+    res.json({
+      success: true,
+      errorMessage: null,
+      myLongLat: myLongLat,
+      allLongLat: allLongLat
+    })
+  }
+});
 
 
 //회원 탈퇴 api
