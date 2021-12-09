@@ -279,44 +279,29 @@ router.post('/editCurrentStatus', verifyMiddleWare, async (req, res, next) => {
     }
   }  
 });
-
 //위치 변경 api
 //req.body에 ??? 필요:  내용
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
 router.post('/updateLocation', verifyMiddleWare, async (req, res, next) => {
-  const { id } = req.decoded;
-  const { building, floor, ssid, longitude, latitude, ip } = req.body;
-
-  const upload = multer({
-    dest: '../upload'
-  })
-  const queryResult = await query(`SELECT * from users where id = '${id}';`);
-
-  if (queryResult.length > 0) {
-    const findLocation = await query(`SELECT * FROM location WHERE building = '${building}' and floor = '${floor}' and ssid = '${ssid}'`);
-    if (findLocation.length == 0) {
-      await query(`INSERT INTO location(building, floor, ssid, longitude, latitude, ip) 
-      VALUES('${building}', '${floor}', '${ssid}', '${longitude}', '${latitude}', '${ip}')`);
-    }
-    await query(`UPDATE user SET building = '${building}' WHERE id = '${id}';`);
-    await query(`UPDATE user SET floor = '${floor}' WHERE id = '${id}';`);
-    await query(`UPDATE user SET ssid = '${ssid}' WHERE id = '${id}';`);
-    res.json({
-      success: true,
-      building,
-      floor,
-      ssid,
-      longitude,
-      latitude,
-      ip,
-    });
-  } else {
-    res.json({
-      success: false,
-      errorMessage: 'Incorrect id'
-    });
+  console.log("HI");
+  const { content, building, longitude, latitude, floor, SSID, IP } = req.body;
+  const id = req.decoded;
+  console.log("HI");
+  const findLocation = await query(`SELECT * FROM location WHERE building = '${building}' and floor = '${floor}' and ssid = '${SSID}'`);
+  console.log("HI");
+  if (findLocation.length == 0) {
+    await query(`INSERT INTO location(building, floor, ssid, longitude, latitude, ip) 
+    VALUES('${building}', '${floor}', '${SSID}', '${longitude}', '${latitude}', '${IP}')`);
   }
+  console.log("HI");
+  await query(`UPDATE users SET building = '${building}' WHERE id = '${id}';`);
+  await query(`UPDATE users SET floor = '${floor}' WHERE id = '${id}';`);
+  await query(`UPDATE users SET ssid = '${SSID}' WHERE id = '${id}';`);
+  console.log("HI");  
+  res.json({
+    success: true,
+  });
 });
 
 
