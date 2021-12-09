@@ -267,7 +267,6 @@ router.post('/editCurrentStatus', verifyMiddleWare, async (req, res, next) => {
     const queryResult = await query(`SELECT * from users where id = '${id}';`);
     if (queryResult.length > 0) {
       await query(`UPDATE users SET current_status = '${current_status}' WHERE id = '${id}';`);
-      console.log(current_status);
         res.json({
           success: true
         });
@@ -284,37 +283,99 @@ router.post('/editCurrentStatus', verifyMiddleWare, async (req, res, next) => {
 //성공시 success: true
 //실패시 success: false, errorMessage: 'Incorrect id'
 router.post('/updateLocation', verifyMiddleWare, async (req, res, next) => {
-  const { content, building, longitude, latitude, floor, SSID, IP } = req.body;
-  const id = req.decoded;
-  const findLocation = await query(`SELECT * FROM location WHERE building = '${building}' and floor = '${floor}' and ssid = '${SSID}'`);
-  if (findLocation.length == 0) {
-    await query(`INSERT INTO location(building, floor, ssid, longitude, latitude, ip) 
-    VALUES('${building}', '${floor}', '${SSID}', '${longitude}', '${latitude}', '${IP}')`);
+  const { id } = req.decoded;
+  const { building, longitude, latitude, floor, SSID, IP } = req.body;
+
+  const queryResult = await query(`SELECT * from users where id = '${id}';`);
+
+  if (queryResult.length > 0) {
+    const findLocation = await query(`SELECT * FROM location WHERE building = '${building}' and floor = '${floor}' and ssid = '${SSID}'`);
+    if (findLocation.length == 0) {
+      await query(`INSERT INTO location(building, floor, ssid, longitude, latitude, ip) 
+      VALUES('${building}', '${floor}', '${SSID}', '${longitude}', '${latitude}', '${IP}')`);
+    }
+    await query(`UPDATE users SET building = '${building}', floor = '${floor}', ssid = '${SSID}' WHERE id = '${id}';`);
+      res.json({
+        success: true
+      });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Incorrect id'
+    });
   }
-  await query(`UPDATE users SET building = '${building}' WHERE id = '${id}';`);
-  await query(`UPDATE users SET floor = '${floor}' WHERE id = '${id}';`);
-  await query(`UPDATE users SET ssid = '${SSID}' WHERE id = '${id}';`);
-  res.json({
-    success: true,
-  });
+  
+  
+  //await query(`UPDATE users SET building = '${building}' WHERE id = '${id}';`);
+  //await query(`UPDATE users SET floor = '${floor}' WHERE id = '${id}';`);
+  //await query(`UPDATE users SET ssid = '${SSID}' WHERE id = '${id}';`);
 });
+
+
 
 router.get('/arounds', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
-  const myLongLat = await query(`SELECT L.longitude, L.latitude FROM location L, users U WHERE U.id='${id} AND U.building=L.building AND U.floor=L.floor AND U.ssid=L.ssid';`)
-  const allLongLat = await query(`SELECT DISTINCT L.longitude, L.latitude FROM location L`)
+  const myLongLat = await query(`SELECT L.longitude, L.latitude FROM location L, users U WHERE U.id='${id}' AND U.building=L.building AND U.floor=L.floor AND U.ssid=L.ssid;`);
+  const allLongLat = await query(`SELECT DISTINCT L.longitude, L.latitude FROM location L`);
+  const allLocation = await query(`SELECT * FROM location`);
   if (myLongLat.length==0){
     res.json({
       success: false,
       errorMessage: "You should first upload your Location."
-    })
+    });
   } else {
-    res.json({
-      success: true,
-      errorMessage: null,
-      myLongLat: myLongLat,
-      allLongLat: allLongLat
-    })
+    var distance;
+    var around_loc = [];
+    
+    function getDistanceFromLatLonInKm(lat1,lng1,lat2,lng2) { 
+      function deg2rad(deg) { 
+        return deg * (Math.PI/180);
+      } 
+      var R = 6371; // Radius of the earth in km 
+      var dLat = deg2rad(Math.abs(lat2-lat1)); // deg2rad below 
+      var dLon = deg2rad(Math.abs(lng2-lng1));
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+      var d = R * c; // Distance in km 
+      return d; 
+    }
+    for (var i = 0; i < allLongLat.length; i++) {
+      distance = getDistanceFromLatLonInKm(myLongLat[0].latitude, myLongLat[0].longitude, allLongLat[i].latitude, allLongLat[i].longitude)*1000; // Distance in m
+      if (distance <= 500) {
+        around_loc.push({ latitude: allLongLat[i].latitude, longitude: allLongLat[i].longitude });
+      }
+    }
+    console.log(around_loc);
+    if (around_loc.length == 0){
+      res.json({
+        success: false,
+        errorMessage: 'No arounds',
+      });
+    } else {
+      
+      var temp_arounds = [];
+
+      var data;
+      var count = 0;
+
+      for (i = 0; i < around_loc.length; i++) {
+        data = await query(`SELECT building, floor, ssid FROM location L 
+      WHERE ABS(L.latitude - '${around_loc[i].latitude}')<=1e-4 AND ABS(L.longitude - '${around_loc[i].longitude}')<=1e-4`);
+        console.log(data);
+        for (j = 0; j < data.length; j++) {
+          temp_arounds[count] = data[j];
+          count++;
+        }
+      }
+      console.log(temp_arounds)
+      const arounds = temp_arounds;
+      console.log(arounds);
+      res.json({
+        success: true,
+        errorMessage: null,
+        arounds
+      });
+    }
   }
 });
 
