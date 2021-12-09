@@ -14,7 +14,7 @@
             <el-table-column prop="id" label="id" width="100" />
             <el-table-column prop="name" label="name" width="100" />
             <el-table-column prop="role" label="role" width="100" />
-            <el-table-column prop="text" label="last text" width="100">
+            <el-table-column prop="text" label="last text" width="100" />
             <el-table-column prop="date_time" label="time" width="100" />    
             <el-table-column label="online" align="center">
                 <template #default="scope">
