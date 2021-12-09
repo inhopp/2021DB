@@ -33,9 +33,9 @@ export default {
     ...mapState('user', ['id', 'arounds']),
   },
   methods: {
-    ...mapMutations('user', ['updateArounds', 'updateAroundsub']),
+    ...mapMutations('user', ['updateArounds', 'updateSelectedLocation']),
     move(building, floor, ssid) {
-        this.updateAroundsub({
+        this.updateSelectedLocation({
             building,
             floor,
             ssid
