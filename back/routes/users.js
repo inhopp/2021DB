@@ -332,26 +332,7 @@ router.post('/deleteAccount', verifyMiddleWare, async (req, res, next) => {
 
 // 내 주변 관련 api
 
-//특정 장소에 있는 유저들 api
-//req.body에 theLocation 필요: 유저들을 찾기 원하는 특정 장소
-//성공시, success: true, usersInLocation
-//실패시, success: false, errorMessage
-router.get('/usersInLocation', verifyMiddleWare, async (req, res, next) => {
-  const { theLocation } = req.body;
-
-  const usersInLocation = await query(`SELECT name, current_status, role from users where location = '${theLocation}';`);
-
-  if (usersInLocation.length > 0) {
-    res.json({
-      success: true,
-      usersInLocation
-    });
-  } else {
-    res.json({
-      success: false,
-      errorMessage: 'No users in the location'
-    });
-  }
-});
+//get('/arounds', ...) SELECT building, floor, ssid FROM location where 500m 이내
+//get('/aroundsub', ...) SELECT id, name, role, current_status FROM users where ssid 일치
 
 module.exports = router;

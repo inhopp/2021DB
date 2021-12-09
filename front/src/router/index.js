@@ -4,6 +4,8 @@ import SignIn from '../components/pages/SignIn';
 import SignUp from '../components/pages/SignUp';
 import Chat from '../components/pages/Chat';
 import Search from '../components/pages/Search';
+import Around from '../components/pages/Around';
+import Around_sub from '../components/pages/Around_sub';
 import Friend from '../components/pages/Friend';
 import ChatList from '../components/pages/ChatList';
 import EditInfo from '../components/pages/EditInfo';
@@ -36,6 +38,18 @@ const routes = [
     path: '/search',
     name: 'Search',
     component: Search,
+    meta: { authRequired: true }
+  },
+  {
+    path: '/around',
+    name: 'Around',
+    component: Around,
+    meta: { authRequired: true }
+  },
+  {
+    path: '/around_sub',
+    name: 'Around_sub',
+    component: Around_sub,
     meta: { authRequired: true }
   },
   {
