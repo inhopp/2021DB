@@ -4,7 +4,7 @@ const { query } = require('../modules/db');
 const { verifyMiddleWare } = require('../modules/jwt');
 
 //자신과 채팅을 나눈 적 있는 다른 유저와의 채팅방마다(row)
-//{ 다른 유저의 id, 마지막 메시지, 마지막 메시지의 시간}(column)을 모아서 리턴하는 api
+//{ 다른 유저의 id, name, role, 마지막 메시지, 마지막 메시지의 시간}(column)을 모아서 리턴하는 api
 //성공시, success: true, chatList
 //실패시, success: false, errorMessage
 // - 마지막 메시지는 자신이 보낸 것일수도, 상대가 보낸 것일수도 있음
@@ -15,7 +15,7 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
   if (id) {
     const chatList = (await query(`SELECT @uid:=id from users where id = '${id}';
       WITH b AS (SELECT if(from_id = @uid, to_id, from_id) AS id, text, date_time FROM message WHERE from_id = @uid OR to_id = @uid)
-      SELECT u.id, u.name, b.text, b.date_time FROM b, users u WHERE date_time IN (SELECT max(date_time) FROM b GROUP BY id) and u.id = b.id;`))[1];
+      SELECT u.id, u.name, u.role, b.text, b.date_time FROM b, users u WHERE date_time IN (SELECT max(date_time) FROM b GROUP BY id) and u.id = b.id;`))[1];
     res.json({
       success: true,
       chatList

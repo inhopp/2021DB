@@ -1,7 +1,7 @@
 <template>
   <div class="chatList">
     <el-row justify="center" align="middle" style="height: 100%">
-      <el-col :span="10" style="height: 100%">
+      <el-col :span="14" style="height: 100%">
         <el-card style="height: 100%" body-style="height: 100%;">
           <h3 style="text-align: center">Chat List</h3>
           <el-table
@@ -13,12 +13,14 @@
             <el-table-column type="index" width="50" />
             <el-table-column prop="id" label="id" width="100" />
             <el-table-column prop="name" label="name" width="100" />
-            <el-table-column label="message">
-              <template #default="scope">
-								<span style="white-space: nowrap;">
-									{{ scope.row.message }}
-								</span>
-							</template>
+            <el-table-column prop="role" label="role" width="100" />
+            <el-table-column prop="text" label="last text" width="100" />
+            <el-table-column prop="date_time" label="time" width="100" />    
+            <el-table-column label="online" align="center">
+                <template #default="scope">
+                    <span v-if="users.find(user => user.id === scope.row.id)" class="online"> Online </span>
+                    <span v-else class="offline"> Offline </span>
+                </template>
             </el-table-column>
             <el-table-column label="chat" align="center">
               <template #default="scope">
@@ -26,7 +28,7 @@
                   size="mini"
                   type="primary"
                   @click="
-                    $router.push({ name: 'Chat', params: { userId: scope.row.id } })
+                    $router.push({ name: 'Chat', params: { userId: scope.row.id, userName: scope.row.name, userRole: scope.row.role } })
                   "
                   >chat</el-button
                 >
@@ -40,11 +42,17 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import { ElNotification } from "element-plus";
 import http from "../../services/http";
 
 export default {
   name: "ChatList",
+  computed: {
+    ...mapState('user', ['id', 'friends']),
+    ...mapState('online', ['users']),
+  },
+  ...mapMutations('user', ['updateFriends']),
   async created() {
     const { success, errorMessage, chatList } = (await http.get("/chats/list")).data;
 
@@ -60,8 +68,8 @@ export default {
         this.chatList.push({
           id: from_id,
           name: from_name,
-          message,
-          created_at,
+          text: message,
+          date_time: created_at,
         });
       }
 
@@ -94,5 +102,11 @@ export default {
 <style scoped>
 .chatList {
   height: 100%;
+}
+.online {
+  color: green;
+}
+.offline {
+  color: red;
 }
 </style>

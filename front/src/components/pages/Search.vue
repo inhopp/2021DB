@@ -17,13 +17,13 @@
             <el-table-column prop="id" label="id" />
             <el-table-column prop="name" label="name" />
             <el-table-column prop="role" label="role" />
-            <el-table-column prop="current_status" label="Message" />
+            <el-table-column prop="current_status" label="status" />
             <el-table-column label="friend" align="center">
               <template #default="scope">
                 <el-button
                   v-if="!this.friends.find(el => el.id === scope.row.id)"
                   size="mini"
-                  @click="addFriend(scope.row.id, scope.row.name)"
+                  @click="addFriend(scope.row.id)"
                   type="success"
                   >
                   add
@@ -81,7 +81,7 @@ export default {
       }
     },
 
-    async addFriend(friend_id, friend_name) {
+    async addFriend(friend_id) {
       const { success, errorMessage } = (await http.post('/users/addFriends', {
         friend_id
       })).data;
@@ -92,9 +92,18 @@ export default {
           message: "Success",
           type: "success",
         });
-        this.updateFriends({
-          friends: [...this.friends, { id: friend_id, name: friend_name }]
-        });
+        const { success, errorMessage, friends } = (await http.get('/users/friends')).data;
+        if (success){
+          this.updateFriends({
+          friends
+          });
+        } else {
+          ElNotification({
+            title: "Add friend",
+            message: errorMessage,
+            type: "error",
+          });
+        }       
       } else {
         ElNotification({
           title: "Add friend",
