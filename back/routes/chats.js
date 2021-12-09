@@ -48,6 +48,61 @@ router.post('/chatData/read/:targetId', verifyMiddleWare, async (req, res, next)
   }
 });
 
+//채팅 상대가 현재 채팅방에 있는지 확인하는 api
+//성공시, success: true, is_in_this_room: true 혹은 false
+//실패시, success: false, errorMessage
+router.get('/chatData/is_at_chatroom/:targetId', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  const { targetId }= req.params;
+
+  if (id) {
+    const queryResult = await query(`SELECT is_at_chatroom from users where id = '${targetId}'`);
+    let is_in_this_room;
+		queryResult.forEach(query => {
+			is_in_this_room = (query.is_at_chatroom == id ? 1 : 0);
+      console.log(id);
+      console.log(query.is_at_chatroom);
+      console.log(is_in_this_room);
+
+		})
+    res.json({
+      success: true,
+      is_in_this_room
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Authentication is required'
+    });
+  }
+});
+
+//현재 들어있는 채팅창 정보 수정 api
+//req.body에 goingIn 필요: 채팅창에 들어오는 중이면 true, 나가는 중이면 false
+//성공시, success: true
+//실패시, success: false, errorMessage
+router.post('/chatData/is_at_chatroom/:targetId', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  const { targetId }= req.params;
+  const { goingIn } = req.body; //채팅창에 들어오는 중인지, 나가는 중인지
+
+  if (id) {
+    if (goingIn) {
+      await query(`UPDATE users set is_at_chatroom = '${targetId}' where id = '${id}';`);
+    } else {
+      await query(`UPDATE users set is_at_chatroom = '' where id = '${id}';`);
+    }
+    res.json({
+      success: true
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Authentication is required'
+    });
+  }
+});
+
 //targetId와 나눈 채팅들의 { from_id, to_id, text, date_time, is_read, is_rendezvous, set_time, building, floor, ssid, deleted }을 시간순으로 정렬해서 리턴하는 api
 //성공시, success: true, chatDatas
 //실패시, success: false, errorMessage

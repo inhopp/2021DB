@@ -42,14 +42,23 @@ module.exports = io => {
 		socket.on('CHAT_MESSAGE', async msg => {
 			const targetSockets = findSocketById(io, msg.targetId);
 
-			await query(`INSERT INTO message(from_id, to_id, text, date_time) SELECT f.id, t.id, '${msg.message}', '${msg.created_at}' FROM users f, users t WHERE f.id = '${socket.user_id}' and t.id = '${msg.targetId}';`)
+			const queryResult = await query(`SELECT is_at_chatroom from users where id = '${msg.targetId}';`);
+			let is_at_chatroom;
+			queryResult.forEach(result => {
+				is_at_chatroom = result.is_at_chatroom;
+			})
+			const in_this_room = (is_at_chatroom == socket.user_id ? 1 : 0);
+
+			//await query(`INSERT INTO message(from_id, to_id, text, date_time, is_read) SELECT f.id, t.id, '${msg.message}', '${msg.created_at}', '${in_this_room}' FROM users f, users t WHERE f.id = '${socket.user_id}' and t.id = '${msg.targetId}';`)
+			await query(`INSERT into message(from_id, to_id, text, date_time, is_read) values('${socket.user_id}', '${msg.targetId}', '${msg.message}', '${msg.created_at}', '${in_this_room}');`);
 
 			if (targetSockets.length > 0) {
 				targetSockets.forEach(soc => soc.emit('CHAT_MESSAGE', {
 					message: msg.message,
 					from_id: socket.user_id,
 					from_name: socket.name,
-					created_at: msg.created_at
+					created_at: msg.created_at,
+					is_read: in_this_room
 				}));
 			}
 		});
