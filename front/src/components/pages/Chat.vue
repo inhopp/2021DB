@@ -31,11 +31,11 @@
           <el-scrollbar class="chat_messages" ref="scrollbar" view-style="height: 100%;">
             <div ref="inner">
               <div v-for="(chatData, index) in chatDatas" :key="index" :class="`${chatData.type} chat_line`">
-                <p v-if="chatData.type === 'chat_right'" :class="`${chatData.type}_time`">{{ new Date(chatData.created_at).toLocaleTimeString() }}</p>
+                <p v-if="chatData.type === 'chat_right'" :class="`${chatData.type}_time`">{{ chatData.is_read ? '읽음' : '읽지 않음' }}, {{ new Date(chatData.created_at).toLocaleTimeString() }}</p>
                 <p :class="`${chatData.type}_inner chat_inner`">
                   {{ chatData.message }}
                 </p>
-                <p v-if="chatData.type === 'chat_left'" :class="`${chatData.type}_time`">{{ new Date(chatData.created_at).toLocaleTimeString() }}</p>
+                <p v-if="chatData.type === 'chat_left'" :class="`${chatData.type}_time`">{{ new Date(chatData.created_at).toLocaleTimeString() }}, {{ chatData.is_read ? '읽음' : '읽지 않음' }}</p>
               </div>
             </div>
           </el-scrollbar>
