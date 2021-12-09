@@ -4,6 +4,19 @@
       <el-col :span="14" style="height: 100%">
         <el-card style="height: 100%" body-style="height: 100%;">
           <h3 style="text-align: center">Friend</h3>
+          <div>
+          <sapn class="color">My information</sapn>
+          <el-table :data="form" style="width: 100%" max-Height="700px">
+            <el-table-column prop="id" label="id" />
+            <el-table-column prop="name" label="name" />
+            <el-table-column prop="role" label="role" />
+            <el-table-column prop="current_status" label="status" />
+            <el-table-column prop="building" label="building" />
+            <el-table-column prop="floor" label="floor" />
+          </el-table>
+          </div>
+          <div>
+          <sapn class="color">Friends information</sapn>
           <el-table :data="friends" style="width: 100%" max-Height="700px">
             <el-table-column type="index" width="50" />
             <el-table-column prop="id" label="id" />
@@ -47,6 +60,7 @@
               </template>
             </el-table-column>
           </el-table>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -60,8 +74,20 @@ import http from '../../services/http';
 
 export default {
   name: "Friend",
+  data() {
+    return {
+      form: [{
+        id: '',
+        name: '',
+        role: '',
+        current_status: '',
+        building: '',
+        floor: '',
+      }]
+    };
+  },
   computed: {
-    ...mapState('user', ['id', 'friends']),
+    ...mapState('user', ['id', 'name', 'role', 'current_status', 'building', 'floor', 'friends']),
     ...mapState('online', ['users']),
   },
   methods: {
@@ -90,6 +116,15 @@ export default {
     },
   },
   async created() {
+    this.form = [{
+        id: this.id,
+        name: this.name,
+        role: this.role,
+        current_status: this.current_status,
+        building: this.building,
+        floor: this.building,
+      }];
+      
     const { success, errorMessage, friends } = (await http.get('/users/friends')).data;
 
     if (success) {
@@ -116,5 +151,10 @@ export default {
 }
 .offline {
   color: red;
+}
+.color {
+  color: green;
+  font-size: 18px;
+  padding: 15px;
 }
 </style>

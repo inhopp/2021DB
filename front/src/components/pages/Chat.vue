@@ -8,9 +8,13 @@
         <el-card style="height: 100%;" :body-style="{ height: 'calc(100% - 58px)' }">
           <template #header >
             <div class="card-header">
-              <span>{{ $route.params.userRole }}</span>
-              <span>{{ $route.params.userName }}</span>
-              <el-button
+            <el-row>
+              <el-col :span="18">
+                <span>role  </span>
+                <span>name  </span>               
+              </el-col>
+              <el-col :span="6">
+                <el-button
                 v-if="!this.friends.find(el => el.id === $route.params.userId)"
                 size="mini"
                 @click="addFriend($route.params.userId)"
@@ -26,6 +30,8 @@
                 >
                 remove
               </el-button>
+              </el-col>
+            </el-row>
             </div>
           </template>
           <el-scrollbar class="chat_messages" ref="scrollbar" view-style="height: 100%;">
