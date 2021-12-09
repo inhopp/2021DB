@@ -33,9 +33,9 @@ export default {
     ...mapState('user', ['id', 'arounds']),
   },
   methods: {
-    ...mapMutations('user', ['updateArounds', 'updateAroundsub']),
+    ...mapMutations('user', ['updateArounds', 'updateSelectedLocation']),
     move(building, floor, ssid) {
-        this.updateAroundsub({
+        this.updateSelectedLocation({
             building,
             floor,
             ssid
@@ -47,7 +47,7 @@ export default {
     }
   },
   async created() {
-    const { success, errorMessage, arounds } = (await http.get('/users/arounds')).data;
+    const { success, errorMessage, myLongLat, allLongLat } = (await http.get('/users/arounds')).data;
 
     if (success) {
       this.updateArounds({
