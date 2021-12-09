@@ -13,12 +13,18 @@
             <el-table-column type="index" width="50" />
             <el-table-column prop="id" label="id" width="100" />
             <el-table-column prop="name" label="name" width="100" />
-            <el-table-column label="message">
+            <el-table-column prop="message" label="message" width="100">
               <template #default="scope">
 								<span style="white-space: nowrap;">
 									{{ scope.row.message }}
 								</span>
 							</template>
+            </el-table-column>
+            <el-table-column label="online" align="center">
+                <template #default="scope">
+                    <span v-if="users.find(user => user.id === scope.row.id)" class="online"> Online </span>
+                    <span v-else class="offline"> Offline </span>
+                </template>
             </el-table-column>
             <el-table-column label="chat" align="center">
               <template #default="scope">
@@ -40,11 +46,17 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import { ElNotification } from "element-plus";
 import http from "../../services/http";
 
 export default {
   name: "ChatList",
+  computed: {
+    ...mapState('user', ['id', 'friends']),
+    ...mapState('online', ['users']),
+  },
+  ...mapMutations('user', ['updateFriends']),
   async created() {
     const { success, errorMessage, chatList } = (await http.get("/chats/list")).data;
 
@@ -60,8 +72,8 @@ export default {
         this.chatList.push({
           id: from_id,
           name: from_name,
-          message,
-          created_at,
+          message: message,
+          created_at: created_at,
         });
       }
 
@@ -94,5 +106,11 @@ export default {
 <style scoped>
 .chatList {
   height: 100%;
+}
+.online {
+  color: green;
+}
+.offline {
+  color: red;
 }
 </style>
