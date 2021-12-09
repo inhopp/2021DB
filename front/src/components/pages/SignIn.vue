@@ -1,7 +1,7 @@
 <template>
   <div class="sign_in">
     <el-row justify="center" align="middle">
-      <el-col :span="6">
+      <el-col :span="8">
         <el-card class="box-card">
           <div class="card-header">
             <span>Sign in</span>

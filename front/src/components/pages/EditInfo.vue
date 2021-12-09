@@ -149,6 +149,27 @@ export default {
     async remove() {
       const { success, errorMessage } = (await http.post("/users/deleteAccount")).data;
         if (success) {
+
+				this.updateUser({
+          id: '',
+          name: '',
+          active: '',
+          current_status: '',
+          role: '',
+          building: '',
+          floor: '',
+          ssid: '',
+          longitude: '',
+          latitude: '',
+          ip: '',
+          friends: [],
+          searchs: [],
+          arounds: [],
+          select_building: '',
+          select_floor: '',
+          select_ssid: ''
+				});
+        
         this.$router.push({
           name: "Home",
         });
