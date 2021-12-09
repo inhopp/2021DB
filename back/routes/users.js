@@ -23,12 +23,13 @@ router.post('/signIn', async (req, res, next) => {
       name: queryResult[0].name,
       active: queryResult[0].active,
       current_status: queryResult[0].current_status,
+      role: queryResult[0].role,
       building: queryResult[0].building,
       floor: queryResult[0].floor,
       ssid: queryResult[0].ssid,
       longitude: queryResult[0].longitude,
       latitude: queryResult[0].latitude,
-      role: queryResult[0].role
+      ip: queryResult[0].ip,
     });
   } else {
     res.json({
@@ -330,7 +331,6 @@ router.post('/deleteAccount', verifyMiddleWare, async (req, res, next) => {
 // 내 정보 편집 관련 api 끝
 
 // 내 주변 관련 api
-
 //get('/arounds', ...) SELECT building, floor, ssid FROM location where 500m 이내
 //get('/aroundsub', ...) SELECT id, name, role, current_status FROM users where ssid 일치
 

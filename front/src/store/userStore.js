@@ -59,7 +59,7 @@ export default {
     updateAroundsub(state, { aroundsub }) {
       state.aroundsub = [...aroundsub];
     },
-    updateAroundsub(state, { building, floor, ssid }) {
+    updateSelectedLocation(state, { building, floor, ssid }) {
       state.select_building = building;
       state.select_floor = floor;
       state.select_ssid = ssid;
