@@ -15,7 +15,11 @@
             <el-table-column prop="name" label="name" width="100" />
             <el-table-column prop="role" label="role" width="100" />
             <el-table-column prop="text" label="last text" width="100" />
-            <el-table-column prop="date_time" label="time" width="100" />    
+            <el-table-column label="time" width="100" align="center">  
+              <template #default="scope">
+                <span class="time2">{{ new Date(scope.row.date_time).toLocaleTimeString() }}</span>
+              </template>
+            </el-table-column>
             <el-table-column label="online" align="center">
                 <template #default="scope">
                     <span v-if="users.find(user => user.id === scope.row.id)" class="online"> Online </span>
@@ -96,6 +100,16 @@ export default {
       chatList: [],
     };
   },
+  methods: {
+    formatTime(row) {
+      const date = new Date(row.date_time);
+      return date.getFullYear() + '.' +
+      date.getMonth() + '.' +
+      date.getDate() + ' ' +
+      date.getHour() + ':' +
+      date.getMinute();
+    }
+  }
 };
 </script>
 
