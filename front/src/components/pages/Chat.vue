@@ -55,7 +55,7 @@
             </el-col>
             <el-col
               :span="4">
-              <el-button type="info" class="send_button" @click="sendMessage">send</el-button>
+              <el-button type="info" class="send_button" @click="sendMessage(1, 3)">send</el-button>
             </el-col>
           </el-row>
         </el-card>
@@ -78,7 +78,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['id', 'friends']),
+    ...mapState('user', ['id', 'friends', 'building', 'floor', 'ssid']),
   },
   async created() {
     // 친구확인
@@ -224,23 +224,43 @@ export default {
         });
       }
     },
-    async sendMessage() {
+    async sendMessage(is_rendezvous, set_time) {
       if (this.chatMessage.trim() !== '') {
         const { is_in_this_room } = (await http.get(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`)).data;
 
         const created_at = Date.now();
+        let building, floor, ssid;
+        if(is_rendezvous) {
+          building = this.building,
+          floor = this.floor,
+          ssid = this.ssid
+        } else {
+          building = '',
+          floor = '',
+          ssid = ''
+        }
         this.chatDatas.push({
           message: this.chatMessage,
           type: 'chat_right',
           created_at,
-          is_read: is_in_this_room
+          is_read: is_in_this_room,
+          is_rendezvous,
+          set_time,
+          building,
+          floor,
+          ssid
         });
 
         // socket 채팅 전송
         this.$socket.emit('CHAT_MESSAGE', {
           message: this.chatMessage,
           targetId: this.$route.params.userId,
-          created_at: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+          created_at: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' '),
+          is_rendezvous,
+          set_time,
+          building,
+          floor,
+          ssid
         })
 
         this.chatMessage = '';

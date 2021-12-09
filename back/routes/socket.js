@@ -49,8 +49,12 @@ module.exports = io => {
 			})
 			const in_this_room = (is_at_chatroom == socket.user_id ? 1 : 0);
 
-			//await query(`INSERT INTO message(from_id, to_id, text, date_time, is_read) SELECT f.id, t.id, '${msg.message}', '${msg.created_at}', '${in_this_room}' FROM users f, users t WHERE f.id = '${socket.user_id}' and t.id = '${msg.targetId}';`)
 			await query(`INSERT into message(from_id, to_id, text, date_time, is_read) values('${socket.user_id}', '${msg.targetId}', '${msg.message}', '${msg.created_at}', '${in_this_room}');`);
+			if(msg.is_rendezvous) {
+				const quaryResult = await query(`SELECT message_id from message where from_id = '${socket.user_id}' and date_time = '${msg.created_at}';`);
+				const message_id = quaryResult[0].message_id;
+				await query(`INSERT into rendezvous_message(message_id, set_time, building, floor, ssid) values('${message_id}', '${msg.set_time}', '${msg.building}', '${msg.floor}', '${msg.ssid}');`);
+			}
 
 			if (targetSockets.length > 0) {
 				targetSockets.forEach(soc => soc.emit('CHAT_MESSAGE', {
@@ -58,7 +62,12 @@ module.exports = io => {
 					from_id: socket.user_id,
 					from_name: socket.name,
 					created_at: msg.created_at,
-					is_read: in_this_room
+					is_read: in_this_room,
+					is_rendezvous: msg.is_rendezvous,
+					set_time: msg.set_time,
+					building: msg.building,
+					floor: msg.floor,
+					ssid: msg.ssid
 				}));
 			}
 		});
