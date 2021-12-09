@@ -82,7 +82,7 @@ export default {
         friends
       });
       // 대화창 입장 처리
-      const { success, errorMessage } = (await http.post(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`, { goingIn: true })).data;
+      const { success, errorMessage } = (await http.post(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`, { goingIn: true, id:this.id })).data;
       if (!success) {
         ElNotification({
           title: "Going into chatroom",
@@ -149,8 +149,10 @@ export default {
   },
   async beforeUnmount() {
     //채팅방 나감 처리
-    const { success, errorMessage } = (await http.post(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`, { goingIn:false })).data;
-
+    const { success, errorMessage } = (await http.post(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`, {
+      goingIn : false,
+      id : this.id
+      })).data;
     if(!success) {
       ElNotification({
         title: "Getting out of chat room",
@@ -158,6 +160,7 @@ export default {
         type: "error",
       });
     }
+
     this.sockets.unsubscribe('CHAT_MESSAGE');
   },
   methods: {

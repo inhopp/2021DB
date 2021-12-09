@@ -82,10 +82,29 @@ router.get('/chatData/is_at_chatroom/:targetId', verifyMiddleWare, async (req, r
 //성공시, success: true
 //실패시, success: false, errorMessage
 router.post('/chatData/is_at_chatroom/:targetId', verifyMiddleWare, async (req, res, next) => {
-  const { id } = req.decoded;
   const { targetId }= req.params;
-  const { goingIn } = req.body; //채팅창에 들어오는 중인지, 나가는 중인지
+  const { goingIn, id } = req.body; //채팅창에 들어오는 중인지, 나가는 중인지
 
+  if (goingIn) {
+    const { id } = req.decoded;
+    if (id) {
+      await query(`UPDATE users set is_at_chatroom = '${targetId}' where id = '${id}';`);
+      res.json({
+        success: true
+      });
+    } else {
+      res.json({
+        success: false,
+        errorMessage: 'Authentication is required'
+      });
+    }
+  } else {
+    await query(`UPDATE users set is_at_chatroom = '' where id = '${id}';`);
+    res.json({
+      success: true
+    });
+  }
+  /*
   if (id) {
     if (goingIn) {
       await query(`UPDATE users set is_at_chatroom = '${targetId}' where id = '${id}';`);
@@ -101,6 +120,7 @@ router.post('/chatData/is_at_chatroom/:targetId', verifyMiddleWare, async (req, 
       errorMessage: 'Authentication is required'
     });
   }
+  */
 });
 
 //targetId와 나눈 채팅들의 { from_id, to_id, text, date_time, is_read, is_rendezvous, set_time, building, floor, ssid, deleted }을 시간순으로 정렬해서 리턴하는 api
