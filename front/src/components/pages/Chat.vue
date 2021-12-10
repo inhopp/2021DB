@@ -8,9 +8,13 @@
         <el-card style="height: 100%;" :body-style="{ height: 'calc(100% - 58px)' }">
           <template #header >
             <div class="card-header">
-              <span>{{ $route.params.userRole }}</span>
-              <span>{{ $route.params.userName }}</span>
-              <el-button
+            <el-row>
+              <el-col :span="18">
+                <span>role  </span>
+                <span>name  </span>               
+              </el-col>
+              <el-col :span="6">
+                <el-button
                 v-if="!this.friends.find(el => el.id === $route.params.userId)"
                 size="mini"
                 @click="addFriend($route.params.userId)"
@@ -26,6 +30,8 @@
                 >
                 remove
               </el-button>
+              </el-col>
+            </el-row>
             </div>
           </template>
           <el-scrollbar class="chat_messages" ref="scrollbar" view-style="height: 100%;">
@@ -49,7 +55,7 @@
             </el-col>
             <el-col
               :span="4">
-              <el-button type="info" class="send_button" @click="sendMessage">send</el-button>
+              <el-button type="info" class="send_button" @click="sendMessage(1, 3)">send</el-button>
             </el-col>
           </el-row>
         </el-card>
@@ -68,11 +74,11 @@ export default {
   data() {
     return {
       chatDatas: [],
-      chatMessage: '',
+      chatMessage: ''
     }
   },
   computed: {
-    ...mapState('user', ['id', 'friends']),
+    ...mapState('user', ['id', 'friends', 'building', 'floor', 'ssid']),
   },
   async created() {
     // 친구확인
@@ -81,43 +87,54 @@ export default {
       this.updateFriends({
         friends
       });
-      // 이전 대화 읽음 처리
-      const { success, errorMessage } = (await http.post(`/chats/chatData/read/${this.$route.params.userId}`)).data;
+      // 대화창 입장 처리
+      const { success, errorMessage } = (await http.post(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`, { goingIn: true, id:this.id })).data;
       if (!success) {
         ElNotification({
-          title: 'read prev chat datas',
+          title: "Going into chatroom",
           message: errorMessage,
-          type: 'error'
+          type: "error",
         });
       } else {
-        // 이전 대화 내용 가져오기
-        const { success, chatDatas, errorMessage } = (await http.get(`/chats/chatData/${this.$route.params.userId}`)).data;
-        if (success) {
-          chatDatas.forEach(chatData => {
-            this.chatDatas.push({
-              ...chatData,
-              type: chatData.from_id === this.id ? 'chat_right' : 'chat_left',
-              message: chatData.text,
-              created_at: chatData.date_time,
-              is_read: chatData.is_read,
-              is_rendezvous: chatData.is_rendezvous,
-              set_time: chatData.set_time,
-              building: chatData.building,
-              floor: chatData.floor,
-              ssid: chatData.ssid,
-              deleted: chatData.deleted
-            });
-
-            this.chatDatas.sort((a, b) => a.created_at - b.created_at);
-          });
-        } else {
+        // 이전 대화 읽음 처리
+        const { success, errorMessage } = (await http.post(`/chats/chatData/read/${this.$route.params.userId}`)).data;
+        if (!success) {
           ElNotification({
-            title: 'Get prev chat datas',
+            title: 'read prev chat datas',
             message: errorMessage,
             type: 'error'
           });
+        } else {
+          // 이전 대화 내용 가져오기
+          const { success, chatDatas, errorMessage } = (await http.get(`/chats/chatData/${this.$route.params.userId}`)).data;
+          if (success) {
+            chatDatas.forEach(chatData => {
+              this.chatDatas.push({
+                ...chatData,
+                type: chatData.from_id === this.id ? 'chat_right' : 'chat_left',
+                message: chatData.text,
+                created_at: chatData.date_time,
+                is_read: chatData.is_read,
+                is_rendezvous: chatData.is_rendezvous,
+                set_time: chatData.set_time,
+                building: chatData.building,
+                floor: chatData.floor,
+                ssid: chatData.ssid,
+                deleted: chatData.deleted
+              });
+
+              this.chatDatas.sort((a, b) => a.created_at - b.created_at);
+            });
+          } else {
+            ElNotification({
+              title: 'Get prev chat datas',
+              message: errorMessage,
+              type: 'error'
+            });
+          }
         }
       }
+      
     } else {
       ElNotification({
         title: "Add friend",
@@ -125,9 +142,6 @@ export default {
         type: "error",
       });
     }
-    
-
-    
     
     // socket 연결
     this.sockets.subscribe('CHAT_MESSAGE', msg => {
@@ -139,7 +153,20 @@ export default {
       this.chatDatas.sort((a, b) => a.created_at - b.created_at);
     });
   },
-  beforeUnmount() {
+  async beforeUnmount() {
+    //채팅방 나감 처리
+    const { success, errorMessage } = (await http.post(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`, {
+      goingIn : false,
+      id : this.id
+      })).data;
+    if(!success) {
+      ElNotification({
+        title: "Getting out of chat room",
+        message: errorMessage,
+        type: "error",
+      });
+    }
+
     this.sockets.unsubscribe('CHAT_MESSAGE');
   },
   methods: {
@@ -197,20 +224,43 @@ export default {
         });
       }
     },
-    sendMessage() {
+    async sendMessage(is_rendezvous, set_time) {
       if (this.chatMessage.trim() !== '') {
+        const { is_in_this_room } = (await http.get(`/chats/chatData/is_at_chatroom/${this.$route.params.userId}`)).data;
+
         const created_at = Date.now();
+        let building, floor, ssid;
+        if(is_rendezvous) {
+          building = this.building,
+          floor = this.floor,
+          ssid = this.ssid
+        } else {
+          building = '',
+          floor = '',
+          ssid = ''
+        }
         this.chatDatas.push({
           message: this.chatMessage,
           type: 'chat_right',
-          created_at
+          created_at,
+          is_read: is_in_this_room,
+          is_rendezvous,
+          set_time,
+          building,
+          floor,
+          ssid
         });
 
         // socket 채팅 전송
         this.$socket.emit('CHAT_MESSAGE', {
           message: this.chatMessage,
           targetId: this.$route.params.userId,
-          created_at: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+          created_at: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' '),
+          is_rendezvous,
+          set_time,
+          building,
+          floor,
+          ssid
         })
 
         this.chatMessage = '';
