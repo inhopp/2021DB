@@ -9,9 +9,11 @@
           <template #header >
             <div class="card-header">
             <el-row>
-              <el-col :span="18">
-                <span>role  </span>
-                <span>name  </span>               
+              <el-col :span="3">
+                <span> {{ $route.params.userRole }} </span>
+              </el-col>
+              <el-col :span="15">
+                <span> {{ $route.params.userName }} </span>
               </el-col>
               <el-col :span="6">
                 <el-button
