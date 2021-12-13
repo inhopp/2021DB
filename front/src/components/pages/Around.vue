@@ -47,7 +47,7 @@ export default {
     }
   },
   async created() {
-    /*const { success, errorMessage, myLongLat, allLongLat } = (await http.get('/users/arounds')).data;
+    const { success, errorMessage, arounds } = (await http.get('/users/arounds')).data;
 
     if (success) {
       this.updateArounds({
@@ -59,7 +59,7 @@ export default {
         message: errorMessage,
         type: "error",
       });
-    }*/
+    }
   }
 };
 </script>
